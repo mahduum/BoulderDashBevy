@@ -2,6 +2,18 @@
 #![allow(clippy::type_complexity)]
 #![allow(clippy::too_many_arguments)]
 
+
+mod prelude
+{
+    //put extern crates here
+    use bevy_ecs_tilemap::prelude::*;
+
+	pub const SCREEN_WIDTH: i32 = 80;
+	pub const SCREEN_HEIGHT: i32 = 50;
+	pub const DISPLAY_WIDTH: i32 = SCREEN_WIDTH / 2;
+	pub const DISPLAY_HEIGHT: i32 = SCREEN_HEIGHT / 2;
+}
+
 use bevy::{prelude::*, render::camera::ScalingMode, window::PresentMode};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 
