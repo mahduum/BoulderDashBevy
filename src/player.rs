@@ -18,7 +18,7 @@ impl Plugin for PlayerPlugin
     fn build(&self, app: &mut App)
     {
         app.add_startup_system(spawn_player)
-        .add_system(camera_follow.after("movement"))
+        //.add_system(camera_follow.after("movement"))
         .add_system(player_movement.label("movement"));
     }
 }
@@ -92,12 +92,12 @@ fn wall_collision_check(
     true
 }
 
-fn spawn_player(mut commands: Commands, tiles: Res<TileSheet>)
+fn spawn_player(mut commands: Commands, sheet: Res<TileSheet>)
 {
     let player = spawn_sprite_from_tile_sheet(
         &mut commands,
-        &tiles,
-        1,
+        &sheet,
+        0,
         Default::default(),
         Vec3::new(2.0 * TILE_SIZE, -2.0 * TILE_SIZE, 900.0),
     );
@@ -108,20 +108,20 @@ fn spawn_player(mut commands: Commands, tiles: Res<TileSheet>)
         .insert(Player { speed: 3.0 })
         .id();
 
-    let background = spawn_sprite_from_tile_sheet(
-        &mut commands,
-        &tiles,
-        0,
-        Color::rgb(0.5, 0.5, 0.5),
-        Vec3::new(0.0, 0.0, -1.0),
-    );
+    // let background = spawn_sprite_from_tile_sheet(
+    //     &mut commands,
+    //     &tiles,
+    //     0,
+    //     Color::rgb(0.5, 0.5, 0.5),
+    //     Vec3::new(0.0, 0.0, -1.0),
+    // );
 
-    let background = commands
-        .entity(background)
-        .insert(Name::new("Background"))
-        .id(); //id() gives back the entity after creation
+    // let background = commands
+    //     .entity(background)
+    //     .insert(Name::new("Background"))
+    //     .id(); //id() gives back the entity after creation
 
-    commands.entity(player).push_children(&[background]);
+    commands.entity(player);//.push_children(&[background]);
 }
 
 // #[allow(dead_code)]

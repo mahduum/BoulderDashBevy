@@ -14,7 +14,7 @@ mod prelude
 	pub const DISPLAY_HEIGHT: i32 = SCREEN_HEIGHT / 2;
 }
 
-use bevy::{prelude::*, render::camera::ScalingMode, window::PresentMode};
+use bevy::{prelude::*, render::{texture::ImageSettings}, window::PresentMode};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 
 mod player;
@@ -34,6 +34,7 @@ pub const TILE_SIZE: f32 = 0.1;
 fn main() {
     App::new()
         .insert_resource(ClearColor(CLEAR))//clear color
+        .insert_resource(ImageSettings::default_nearest())
         .insert_resource(WindowDescriptor {//basic window properties
             width: HEIGHT * RESOLUTION,
             height: HEIGHT,
@@ -49,6 +50,7 @@ fn main() {
         })
         //.add_plugin(WorldInspectorPlugin::new())
         .add_startup_system(spawn_camera)
+        //.add_startup_system(setup)
         .add_plugin(PlayerPlugin)
         .add_plugin(DebugPlugin)
         .add_plugin(TileSheetPlugin)
@@ -58,17 +60,19 @@ fn main() {
 }
 
 fn spawn_camera(mut commands: Commands) {
-    let mut camera = OrthographicCameraBundle::new_2d();
 
-    camera.orthographic_projection.right = 1.0 * RESOLUTION;
-    camera.orthographic_projection.left = -1.0 * RESOLUTION;
+    let projection = OrthographicProjection {
+        left: -1.0 * RESOLUTION,
+        right: 1.0 * RESOLUTION,
+        bottom: -1.0,
+        top: 1.0,
+        far: 1000.0,
+        ..Default::default()};
 
-    camera.orthographic_projection.top = 1.0;
-    camera.orthographic_projection.bottom = -1.0;
-
-    camera.orthographic_projection.scaling_mode = ScalingMode::None;//so pixel look stays
-
-    commands.spawn_bundle(camera);
+    commands.spawn_bundle(Camera2dBundle{
+        projection,
+        ..Default::default()
+    });
 }
 
 fn toggle_inspector(
@@ -101,5 +105,12 @@ fn input_line(buffer: &mut [u16]){
     {
         *word = 0;//set every value that is bigger than text's length to 0 (in case buffer space in bigger than text's)
     }
-
 }
+
+// fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+//     commands.spawn_bundle(Camera2dBundle::default());
+//     commands.spawn_bundle(SpriteBundle {
+//         texture: asset_server.load("branding/icon.png"),
+//         ..default()
+//     });
+// }

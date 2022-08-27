@@ -4,7 +4,7 @@ use std::{
 };
 
 use bevy::prelude::*;
-use bevy_ecs_tilemap::TileBundleTrait;
+use bevy_ecs_tilemap::TilemapBundle;
 use crate::prelude::*;
 
 use crate::{
@@ -20,6 +20,7 @@ pub struct TileMapPlugin;
 impl Plugin for TileMapPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(create_simple_map);
+        //app.add_startup_system_to_stage(StartupStage::PostStartup, create_simple_map);
     }
 }
 
@@ -82,11 +83,13 @@ fn create_simple_map(mut commands: Commands, sheet: Res<TileSheet>) {
                         _ => 36,
                     },
                     Default::default(),
-                    Vec3::new(x as f32 * TILE_SIZE, -(y as f32) * TILE_SIZE, 100.0),
+                    Vec3::new(x as f32 * TILE_SIZE, -(y as f32) * TILE_SIZE, 800.0),
                 );
+
                 if char == '#' {
                     commands.entity(tile).insert(TileCollider);
                 }
+
                 tiles.push(tile);
             }
         }

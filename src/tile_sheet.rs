@@ -12,7 +12,7 @@ impl Plugin for TileSheetPlugin{
 
 pub fn spawn_sprite_from_tile_sheet(
     commands: &mut Commands,
-    tiles: &TileSheet,
+    sheet: &TileSheet,
     index: usize,
     color: Color,
     translation: Vec3
@@ -24,10 +24,10 @@ pub fn spawn_sprite_from_tile_sheet(
 
     commands.spawn_bundle(SpriteSheetBundle
     {
-        sprite: sprite,
-        texture_atlas: tiles.0.clone(),//can be texture atlas handle directly
+        sprite,
+        texture_atlas: sheet.0.clone(),//can be texture atlas handle passed directly?
         transform: Transform {
-            translation: translation,
+            translation,
             ..Default::default()
         },
         ..Default::default()
