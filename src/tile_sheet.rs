@@ -35,6 +35,30 @@ pub fn spawn_sprite_from_tile_sheet(
     .id()
 }
 
+pub fn sprite_sheet_bundle(
+    commands: &mut Commands,
+    sheet: &TileSheet,
+    index: usize,
+    color: Color,
+    translation: Vec3
+) -> SpriteSheetBundle
+{
+    let mut sprite = TextureAtlasSprite::new(index);
+    sprite.color = color;
+    sprite.custom_size = Some(Vec2::splat(TILE_SIZE));
+
+    SpriteSheetBundle
+    {
+        sprite,
+        texture_atlas: sheet.0.clone(),//can be texture atlas handle passed directly?
+        transform: Transform {
+            translation,
+            ..Default::default()
+        },
+        ..Default::default()
+    }
+}
+
 fn load_tiles(
     mut commands: Commands,
     assets: Res<AssetServer>,

@@ -5,7 +5,7 @@ use std::{
 
 use bevy::prelude::*;
 use bevy_ecs_tilemap::TilemapBundle;
-use crate::prelude::*;
+use crate::{prelude::*, tile_sheet::sprite_sheet_bundle};
 
 use crate::{
     tile_sheet::{spawn_sprite_from_tile_sheet, TileSheet},
@@ -96,9 +96,6 @@ fn create_simple_map(mut commands: Commands, sheet: Res<TileSheet>) {
     }
 
     commands
-        .spawn()
-        .insert(Name::new("Map"))
-        .insert(Transform::default())
-        .insert(GlobalTransform::default())//propagate transforms down in respect to the parent
+        .spawn_bundle(SpatialBundle::default())
         .push_children(&tiles);
 }
