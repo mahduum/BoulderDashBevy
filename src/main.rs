@@ -25,6 +25,7 @@ use player::PlayerPlugin;
 use debug::DebugPlugin;
 use tile_sheet::TileSheetPlugin;
 use tile_map::TileMapPlugin;
+use bevy_ecs_tilemap::TilemapPlugin;
 
 pub const CLEAR: Color = Color::rgb(0.3, 0.3, 0.3);
 pub const HEIGHT: f32 = 900.0;
@@ -33,28 +34,29 @@ pub const TILE_SIZE: f32 = 0.1;
 
 fn main() {
     App::new()
-        .insert_resource(ClearColor(CLEAR))//clear color
-        .insert_resource(ImageSettings::default_nearest())
+        //.insert_resource(ClearColor(CLEAR))//clear color
         .insert_resource(WindowDescriptor {//basic window properties
             width: HEIGHT * RESOLUTION,
             height: HEIGHT,
             title: "Bevy Template".to_string(),
-            present_mode: PresentMode::Fifo,
-            resizable: false,
+            // present_mode: PresentMode::Fifo,
+            // resizable: false,
             ..Default::default()
         })
+        .insert_resource(ImageSettings::default_nearest())
         .add_plugins(DefaultPlugins)
         .insert_resource(WorldInspectorParams {
             enabled: false,
             ..Default::default()
         })
-        //.add_plugin(WorldInspectorPlugin::new())
+        .add_plugin(WorldInspectorPlugin::new())
         .add_startup_system(spawn_camera)
         //.add_startup_system(setup)
         .add_plugin(PlayerPlugin)
         .add_plugin(DebugPlugin)
         .add_plugin(TileSheetPlugin)
         .add_plugin(TileMapPlugin)
+        .add_plugin(TilemapPlugin)
         .add_system(toggle_inspector)
         .run();
 }

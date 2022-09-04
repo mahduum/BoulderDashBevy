@@ -18,7 +18,7 @@ impl Plugin for PlayerPlugin
     fn build(&self, app: &mut App)
     {
         app.add_startup_system(spawn_player)
-        //.add_system(camera_follow.after("movement"))
+        .add_system(camera_follow.after("movement"))
         .add_system(player_movement.label("movement"));
     }
 }
