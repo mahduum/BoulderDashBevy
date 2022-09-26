@@ -1,66 +1,70 @@
+use crate::{tile_map::TileCollider, tile_sheet::{spawn_sprite_from_tile_sheet, TileSheet}, TILE_SCALE, TILE_SIZE, MyLabel};
 use bevy::{prelude::*, sprite::collide_aabb::collide};
 use bevy_inspector_egui::Inspectable;
-use crate::{
-    tile_sheet::{spawn_sprite_from_tile_sheet, TileSheet},
-    //tilemap::TileCollider,
-    TILE_SIZE, tile_map::TileCollider,
-};
 
 pub struct PlayerPlugin;
 
 #[derive(Component, Inspectable)]
-pub struct Player{
-    speed: f32
+pub struct Player {
+    speed: f32,
+    pub active: bool
 }
 
-impl Plugin for PlayerPlugin
-{
-    fn build(&self, app: &mut App)
-    {
+impl Player{
+    pub fn new() -> Self {
+        Player{speed: 3.0, active: true}
+    }
+}
+
+//todo depending on state will calculate different index
+
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
         app.add_startup_system(spawn_player)
-        .add_system(camera_follow.after("movement"))
-        .add_system(player_movement.label("movement"));
+            .add_system_to_stage(CoreStage::Last, camera_follow);
+            //.add_system(player_movement.after("movement"));
     }
 }
 
 fn camera_follow(
-    player_query: Query<&Transform, With<Player>>,
+    player_query: Query<(Entity, &Transform, &Player)>,
     mut camera_query: Query<&mut Transform, (Without<Player>, With<Camera>)>,
 ) {
-    let player_transform = player_query.single();
+    //todo is it a different transform from tiles? calculate transform helper?
+    //TODO some error when changing direction in the same axis
+    let (e, player_transform, player) = player_query.single();
     let mut camera_transform = camera_query.single_mut();
 
     camera_transform.translation.x = player_transform.translation.x;
     camera_transform.translation.y = player_transform.translation.y;
+
 }
 
 fn player_movement(
     mut player_query: Query<(&Player, &mut Transform, &Name)>,
-    wall_query: Query<&Transform, (With<TileCollider>, Without<Player>)>,//with constraint on the collider because we are not using data on it
+    wall_query: Query<&Transform, (With<TileCollider>, Without<Player>)>, //with constraint on the collider because we are not using data on it
     keyboard: Res<Input<KeyCode>>,
-    time: Res<Time>
-)
-{
-    match player_query.get_single_mut(){
+    time: Res<Time>,
+) {
+    match player_query.get_single_mut() {
         Ok((player, mut transform, _name)) => {
-
             let mut y_delta = 0.0;
             if keyboard.pressed(KeyCode::W) {
-                y_delta += player.speed * TILE_SIZE * time.delta_seconds();
+                y_delta += player.speed * TILE_SIZE * TILE_SCALE * time.delta_seconds();
             }
             if keyboard.pressed(KeyCode::S) {
-                y_delta -= player.speed * TILE_SIZE * time.delta_seconds();
+                y_delta -= player.speed * TILE_SIZE * TILE_SCALE * time.delta_seconds();
             }
 
             let mut x_delta = 0.0;
             if keyboard.pressed(KeyCode::A) {
-                x_delta -= player.speed * TILE_SIZE * time.delta_seconds();
+                x_delta -= player.speed * TILE_SIZE * TILE_SCALE * time.delta_seconds();
             }
             if keyboard.pressed(KeyCode::D) {
-                x_delta += player.speed * TILE_SIZE * time.delta_seconds();
+                x_delta += player.speed * TILE_SIZE * TILE_SCALE * time.delta_seconds();
             }
 
-            let target = transform.translation + Vec3::new(x_delta, 0.0, 0.0);//how does this work as sliding along the wall?
+            let target = transform.translation + Vec3::new(x_delta, 0.0, 0.0); //how does this work as sliding along the wall?
             if wall_collision_check(target, &wall_query) {
                 transform.translation = target;
             }
@@ -69,8 +73,8 @@ fn player_movement(
             if wall_collision_check(target, &wall_query) {
                 transform.translation = target;
             }
-        },
-        Err(message) => println!("Error: {}", message)
+        }
+        Err(message) => println!("Error: {}", message),
     }
 }
 
@@ -81,9 +85,9 @@ fn wall_collision_check(
     for wall_transform in wall_query.iter() {
         let collision = collide(
             target_player_pos,
-            Vec2::splat(TILE_SIZE * 0.9),
+            Vec2::splat(TILE_SIZE * TILE_SCALE * 0.9),
             wall_transform.translation,
-            Vec2::splat(TILE_SIZE),
+            Vec2::splat(TILE_SIZE * TILE_SCALE),
         );
         if collision.is_some() {
             return false;
@@ -92,20 +96,24 @@ fn wall_collision_check(
     true
 }
 
-fn spawn_player(mut commands: Commands, sheet: Res<TileSheet>)
-{
+//run once after the map is generated and spawn player at chosen location
+fn spawn_player(mut commands: Commands, sheet: Res<TileSheet>) {
     let player = spawn_sprite_from_tile_sheet(
         &mut commands,
         &sheet,
         0,
         Default::default(),
-        Vec3::new(2.0 * TILE_SIZE, -2.0 * TILE_SIZE, 900.0),
+        Vec3::new(
+            2.0 * TILE_SIZE * TILE_SCALE,
+            -2.0 * TILE_SIZE * TILE_SCALE,
+            900.0,
+        ),
     );
 
     let player = commands
         .entity(player)
         .insert(Name::new("Player"))
-        .insert(Player { speed: 3.0 })
+        //.insert(Player { speed: 3.0 })
         .id();
 
     // let background = spawn_sprite_from_tile_sheet(
@@ -121,7 +129,7 @@ fn spawn_player(mut commands: Commands, sheet: Res<TileSheet>)
     //     .insert(Name::new("Background"))
     //     .id(); //id() gives back the entity after creation
 
-    commands.entity(player);//.push_children(&[background]);
+    commands.entity(player); //.push_children(&[background]);
 }
 
 // #[allow(dead_code)]

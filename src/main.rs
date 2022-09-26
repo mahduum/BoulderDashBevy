@@ -2,7 +2,6 @@
 #![allow(clippy::type_complexity)]
 #![allow(clippy::too_many_arguments)]
 
-
 mod prelude
 {
     //put extern crates here
@@ -14,14 +13,21 @@ mod prelude
 	pub const DISPLAY_HEIGHT: i32 = SCREEN_HEIGHT / 2;
 }
 
+use animate_sprites::AnimateSpritesPlugin;
 use bevy::{prelude::*, render::{texture::ImageSettings}, window::PresentMode};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 
+mod components;
+mod diamond;
+mod animate_sprites;
 mod player;
 mod debug;
 mod tile_sheet;
 mod tile_map;
+mod plugins;
+
 use player::PlayerPlugin;
+use plugins::{player_input::PlayerInputPlugin, movement::MovementPlugin};
 use debug::DebugPlugin;
 use tile_sheet::TileSheetPlugin;
 use tile_map::TileMapPlugin;
@@ -30,8 +36,24 @@ use bevy_ecs_tilemap::TilemapPlugin;
 pub const CLEAR: Color = Color::rgb(0.3, 0.3, 0.3);
 pub const HEIGHT: f32 = 900.0;
 pub const RESOLUTION: f32 = 16.0 / 9.0;
-pub const TILE_SIZE: f32 = 0.1;
+pub const TILE_SIZE: f32 = 16.0;
+pub const TILE_SCALE: f32 = 0.01;
+pub const TILE_SIZE_SCALED: f32 = 16.0 * 0.01;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(SystemLabel)]
+enum MyLabel {
+    /// everything that handles input
+    Input,
+    /// everything that updates player state
+    Player,
+    /// everything that moves things (works with transforms)
+    Movement,
+    /// systems that update the world map
+    Camera,
+}
+
+//todo: is there a function in plugin that remeber what is on what tile?
 fn main() {
     App::new()
         //.insert_resource(ClearColor(CLEAR))//clear color
@@ -58,6 +80,9 @@ fn main() {
         .add_plugin(TileMapPlugin)
         .add_plugin(TilemapPlugin)
         .add_system(toggle_inspector)
+        .add_plugin(AnimateSpritesPlugin)
+        .add_plugin(PlayerInputPlugin)
+        .add_plugin(MovementPlugin)
         .run();
 }
 

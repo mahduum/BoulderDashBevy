@@ -20,7 +20,7 @@ pub fn spawn_sprite_from_tile_sheet(
 {
     let mut sprite = TextureAtlasSprite::new(index);
     sprite.color = color;
-    sprite.custom_size = Some(Vec2::splat(TILE_SIZE));
+    sprite.custom_size = Some(Vec2::splat(16.0 * 0.01));
 
     commands.spawn_bundle(SpriteSheetBundle
     {
@@ -77,5 +77,6 @@ fn load_tiles(
     // );
 
     //let atlas_handle = texture_atlases.add(atlas);
+    
     commands.insert_resource(TileSheet(texture_atlas_handle));
 }
