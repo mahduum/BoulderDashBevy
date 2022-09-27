@@ -170,7 +170,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                         visible: TileVisible(true),
                         ..Default::default()
                     })
-                    //.insert(LastUpdate::default())//todo insert different components to tiles
+                    //.insert(LastUpdate::default())//todo insert different components to tiles, that distinquish their types?
                     .id();
 
             if index == TileType::Player {
@@ -183,6 +183,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     .insert(animate_sprites::AnimatableGeneric{
                         current_index: tile_texture.0,
                         sprite_index_provider: Box::new(
+                            // takes in a trait SpriteRuntimeIndex
                             RockfordAnimation{timer: animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true))
                         })
                     });
@@ -191,7 +192,6 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 commands.entity(tile_entity)
                 .insert(Name::new("Diamond"))
                 .insert(diamond::Diamond{})
-                // .insert(Transform {
                 .insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true)))
                 .insert(animate_sprites::Animatable{
                     current_index: tile_texture.0,

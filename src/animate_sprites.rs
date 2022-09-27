@@ -19,6 +19,7 @@ pub struct Animatable
     pub sprite_index_provider: fn(u32) -> u32,
 }
 
+/// Non generic trait for simple linear animations
 impl Animatable {
     pub fn next_index(&mut self) -> u32 {
         let next_index = (self.sprite_index_provider)(self.current_index);
@@ -33,6 +34,7 @@ pub struct AnimatableGeneric {
     pub sprite_index_provider: Box<dyn SpriteIndexRuntime + Send + Sync>,
 }
 
+/// Provides a way for implementing more complex custom animations for dissimilar types
 impl AnimatableGeneric {
     pub fn get_index(&mut self) -> u32 {
         let next_index = (*self.sprite_index_provider).get_sprite_index(self.current_index);

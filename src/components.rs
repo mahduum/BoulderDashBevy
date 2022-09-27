@@ -9,10 +9,13 @@ pub trait SpriteIndexRuntime{
     fn get_sprite_index(&mut self, current_index: u32) -> u32;
 }
 
-pub struct RockfordAnimation{//todo this should be a component in order to access timer ecs way, it cannot have a direct reference, this is for testing only
-    pub timer: AnimationTimer
+#[derive(Component)]
+pub struct RockfordAnimation{//todo this should be a component in order to access timer ecs way, it cannot have a direct reference, this is for testing only, but maybe it could be simply made a component?
+    pub timer: AnimationTimer//todo this particular animation can also have its own timer outside in resources which it could access and modify but in a less readable way,
+                            // it would be a separate Query<(&mut RockfordAnimation, &mut RockfordAnimationTimer), (With<Player>)>
 }
 
+/// Internal custom index getters for animations of Rockford. Can be rendered more complex and reactive to Rockford's stated by adding more functions, or accepting more arguments like state.
 impl<'a> RockfordAnimation{
     
     pub fn get_index_rockford_standing(&'a mut self, current_index: u32) -> u32{
@@ -29,6 +32,7 @@ impl<'a> RockfordAnimation{
 }
 
 //'a : 'b means "a outlives b"
+/// Implementation of runtime animation index that allows using internal Rockford animation functions in a generic context and in a way that details are hidden.
 impl SpriteIndexRuntime for RockfordAnimation {
     fn get_sprite_index(&mut self, current_index: u32) -> u32 {
         self.get_index_rockford_standing(current_index)
