@@ -51,26 +51,30 @@ impl Plugin for AnimateSpritesPlugin {
 fn animate_sprites<'a, 'b>(
     time: Res<Time>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    //query like in sprite sheet
-    // mut query_animatable: Query<(
-    //     &mut AnimationTimer,
-    //     &mut Animatable,
-    //     &mut TileTexture, //tile texture to have its index changed
-    // )>,
-    mut query_animatable_generic: Query<(
+    //making set of queries because they access simultaneously common components and can have mutability conflicts over the same data
+    //optionally both animation components could be wrapped in option and then check whichever is present
+    mut set: ParamSet<(
+        Query<(
+        &mut AnimationTimer,
+        &mut Animatable,
+        &mut TileTexture, //tile texture to have its index changed
+        )>,
+        Query<(
         &mut AnimationTimer,
         &mut AnimatableGeneric,
         &mut TileTexture,
+        )>
     )>
-) {
-    // for (mut timer, mut animatable, mut tile_texture) in query_animatable.iter_mut() {
-    //     timer.tick(time.delta());
-    //     if timer.just_finished(){
-    //         *tile_texture = TileTexture(animatable.next_index());
-    //     }
-    // }
 
-    for (mut timer, mut animatable_generic, mut tile_texture) in query_animatable_generic.iter_mut() {
+) {
+    for (mut timer, mut animatable, mut tile_texture) in set.p0().iter_mut() {
+        timer.tick(time.delta());
+        if timer.just_finished(){
+            *tile_texture = TileTexture(animatable.next_index());
+        }
+    }
+
+    for (mut timer, mut animatable_generic, mut tile_texture) in set.p1().iter_mut() {
         timer.tick(time.delta());
         if timer.just_finished(){
             let next_index = animatable_generic.get_index();

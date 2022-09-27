@@ -26,6 +26,7 @@ impl Plugin for PlayerPlugin {
     }
 }
 
+//todo make separate system for camera movement (maybe just rename it and move player struct into components.rs)
 fn camera_follow(
     player_query: Query<(Entity, &Transform, &Player)>,
     mut camera_query: Query<&mut Transform, (Without<Player>, With<Camera>)>,
