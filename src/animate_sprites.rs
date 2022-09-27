@@ -28,13 +28,13 @@ impl Animatable {
 }
 
 #[derive(Component)]//todo can it simply extend normal Animatable? (to reuse the function
-pub struct AnimatableGeneric<'a> {
+pub struct AnimatableGeneric {
     pub current_index: u32,
-    pub sprite_index_provider: Box<dyn SpriteIndexRuntime<'a> + Send + Sync>,
+    pub sprite_index_provider: Box<dyn SpriteIndexRuntime + Send + Sync>,
 }
 
-impl<'a> AnimatableGeneric<'a> {
-    pub fn get_index(&'a mut self) -> u32 {
+impl AnimatableGeneric {
+    pub fn get_index(&mut self) -> u32 {
         let next_index = (*self.sprite_index_provider).get_sprite_index(self.current_index);
         self.current_index = next_index;
         self.current_index

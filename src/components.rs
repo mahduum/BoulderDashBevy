@@ -5,8 +5,8 @@ use bevy_ecs_tilemap::tiles::TilePos;
 
 use crate::{animate_sprites::AnimationTimer};
 
-pub trait SpriteIndexRuntime<'a>{
-    fn get_sprite_index(&'a mut self, current_index: u32) -> u32;
+pub trait SpriteIndexRuntime{
+    fn get_sprite_index(&mut self, current_index: u32) -> u32;
 }
 
 pub struct RockfordAnimation{//todo this should be a component in order to access timer ecs way, it cannot have a direct reference, this is for testing only
@@ -29,8 +29,8 @@ impl<'a> RockfordAnimation{
 }
 
 //'a : 'b means "a outlives b"
-impl<'a> SpriteIndexRuntime<'a> for RockfordAnimation {
-    fn get_sprite_index(&'a mut self, current_index: u32) -> u32 {
+impl SpriteIndexRuntime for RockfordAnimation {
+    fn get_sprite_index(&mut self, current_index: u32) -> u32 {
         self.get_index_rockford_standing(current_index)
     }
 }
