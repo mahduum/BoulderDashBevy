@@ -2,15 +2,11 @@ use std::io::stderr;
 use crate::{
 	tile_map::TileCollider,
 	tile_sheet::{spawn_sprite_from_tile_sheet, TileSheet},
-	TILE_SCALE,
-	//tilemap::TileCollider,
-	TILE_SIZE,
 };
 use bevy::{prelude::*, sprite::collide_aabb::collide};
 use bevy_ecs_tilemap::prelude::TilePos;
 use bevy_inspector_egui::Inspectable;
-use crate::components::Delta;
-use crate::player::Player;
+use crate::prelude::*;
 
 pub struct PlayerInputPlugin;
 

@@ -1,28 +1,19 @@
-use crate::{tile_map::TileCollider, tile_sheet::{spawn_sprite_from_tile_sheet, TileSheet}, TILE_SCALE, TILE_SIZE, MyLabel};
+use crate::{
+    tile_map::TileCollider,
+    tile_sheet::{spawn_sprite_from_tile_sheet, TileSheet},
+    MyLabel, TILE_SCALE, TILE_SIZE,
+};
 use bevy::{prelude::*, sprite::collide_aabb::collide};
 use bevy_inspector_egui::Inspectable;
+use crate::prelude::*;
 
-pub struct PlayerPlugin;
-
-#[derive(Component, Inspectable)]
-pub struct Player {
-    speed: f32,
-    pub active: bool
-}
-
-impl Player{
-    pub fn new() -> Self {
-        Player{speed: 3.0, active: true}
-    }
-}
+pub struct CameraFollowPlugin;
 
 //todo depending on state will calculate different index
 
-impl Plugin for PlayerPlugin {
+impl Plugin for CameraFollowPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_player)
-            .add_system_to_stage(CoreStage::Last, camera_follow);
-            //.add_system(player_movement.after("movement"));
+        app.add_system_to_stage(CoreStage::Last, camera_follow);
     }
 }
 
@@ -38,46 +29,46 @@ fn camera_follow(
 
     camera_transform.translation.x = player_transform.translation.x;
     camera_transform.translation.y = player_transform.translation.y;
-
 }
 
-fn player_movement(
-    mut player_query: Query<(&Player, &mut Transform, &Name)>,
-    wall_query: Query<&Transform, (With<TileCollider>, Without<Player>)>, //with constraint on the collider because we are not using data on it
-    keyboard: Res<Input<KeyCode>>,
-    time: Res<Time>,
-) {
-    match player_query.get_single_mut() {
-        Ok((player, mut transform, _name)) => {
-            let mut y_delta = 0.0;
-            if keyboard.pressed(KeyCode::W) {
-                y_delta += player.speed * TILE_SIZE * TILE_SCALE * time.delta_seconds();
-            }
-            if keyboard.pressed(KeyCode::S) {
-                y_delta -= player.speed * TILE_SIZE * TILE_SCALE * time.delta_seconds();
-            }
+//old code:
+// fn player_movement(
+//     mut player_query: Query<(&Player, &mut Transform, &Name)>,
+//     wall_query: Query<&Transform, (With<TileCollider>, Without<Player>)>, //with constraint on the collider because we are not using data on it
+//     keyboard: Res<Input<KeyCode>>,
+//     time: Res<Time>,
+// ) {
+//     match player_query.get_single_mut() {
+//         Ok((player, mut transform, _name)) => {
+//             let mut y_delta = 0.0;
+//             if keyboard.pressed(KeyCode::W) {
+//                 y_delta += player.speed * TILE_SIZE * TILE_SCALE * time.delta_seconds();
+//             }
+//             if keyboard.pressed(KeyCode::S) {
+//                 y_delta -= player.speed * TILE_SIZE * TILE_SCALE * time.delta_seconds();
+//             }
 
-            let mut x_delta = 0.0;
-            if keyboard.pressed(KeyCode::A) {
-                x_delta -= player.speed * TILE_SIZE * TILE_SCALE * time.delta_seconds();
-            }
-            if keyboard.pressed(KeyCode::D) {
-                x_delta += player.speed * TILE_SIZE * TILE_SCALE * time.delta_seconds();
-            }
+//             let mut x_delta = 0.0;
+//             if keyboard.pressed(KeyCode::A) {
+//                 x_delta -= player.speed * TILE_SIZE * TILE_SCALE * time.delta_seconds();
+//             }
+//             if keyboard.pressed(KeyCode::D) {
+//                 x_delta += player.speed * TILE_SIZE * TILE_SCALE * time.delta_seconds();
+//             }
 
-            let target = transform.translation + Vec3::new(x_delta, 0.0, 0.0); //how does this work as sliding along the wall?
-            if wall_collision_check(target, &wall_query) {
-                transform.translation = target;
-            }
+//             let target = transform.translation + Vec3::new(x_delta, 0.0, 0.0); //how does this work as sliding along the wall?
+//             if wall_collision_check(target, &wall_query) {
+//                 transform.translation = target;
+//             }
 
-            let target = transform.translation + Vec3::new(0.0, y_delta, 0.0);
-            if wall_collision_check(target, &wall_query) {
-                transform.translation = target;
-            }
-        }
-        Err(message) => println!("Error: {}", message),
-    }
-}
+//             let target = transform.translation + Vec3::new(0.0, y_delta, 0.0);
+//             if wall_collision_check(target, &wall_query) {
+//                 transform.translation = target;
+//             }
+//         }
+//         Err(message) => println!("Error: {}", message),
+//     }
+// }
 
 fn wall_collision_check(
     target_player_pos: Vec3,
@@ -98,24 +89,24 @@ fn wall_collision_check(
 }
 
 //run once after the map is generated and spawn player at chosen location
-fn spawn_player(mut commands: Commands, sheet: Res<TileSheet>) {
-    let player = spawn_sprite_from_tile_sheet(
-        &mut commands,
-        &sheet,
-        0,
-        Default::default(),
-        Vec3::new(
-            2.0 * TILE_SIZE * TILE_SCALE,
-            -2.0 * TILE_SIZE * TILE_SCALE,
-            900.0,
-        ),
-    );
+// fn spawn_player(mut commands: Commands, sheet: Res<TileSheet>) {
+//     let player = spawn_sprite_from_tile_sheet(
+//         &mut commands,
+//         &sheet,
+//         0,
+//         Default::default(),
+//         Vec3::new(
+//             2.0 * TILE_SIZE * TILE_SCALE,
+//             -2.0 * TILE_SIZE * TILE_SCALE,
+//             900.0,
+//         ),
+//     );
 
-    let player = commands
-        .entity(player)
-        .insert(Name::new("Player"))
-        //.insert(Player { speed: 3.0 })
-        .id();
+//     let player = commands
+//         .entity(player)
+//         .insert(Name::new("Player"))
+//         //.insert(Player { speed: 3.0 })
+//         .id();
 
     // let background = spawn_sprite_from_tile_sheet(
     //     &mut commands,
@@ -130,8 +121,8 @@ fn spawn_player(mut commands: Commands, sheet: Res<TileSheet>) {
     //     .insert(Name::new("Background"))
     //     .id(); //id() gives back the entity after creation
 
-    commands.entity(player); //.push_children(&[background]);
-}
+//     commands.entity(player); //.push_children(&[background]);
+// }
 
 // #[allow(dead_code)]
 // fn setup_rockford(

@@ -4,13 +4,21 @@
 
 mod prelude
 {
+    use bevy::prelude::Color;
     //put extern crates here
-    use bevy_ecs_tilemap::prelude::*;
+    pub use bevy_ecs_tilemap::prelude::*;
+    pub use crate::components::*;
 
 	pub const SCREEN_WIDTH: i32 = 80;
 	pub const SCREEN_HEIGHT: i32 = 50;
 	pub const DISPLAY_WIDTH: i32 = SCREEN_WIDTH / 2;
 	pub const DISPLAY_HEIGHT: i32 = SCREEN_HEIGHT / 2;
+    pub const CLEAR: Color = Color::rgb(0.3, 0.3, 0.3);
+    pub const HEIGHT: f32 = 900.0;
+    pub const RESOLUTION: f32 = 16.0 / 9.0;
+    pub const TILE_SIZE: f32 = 16.0;
+    pub const TILE_SCALE: f32 = 0.01;
+    pub const TILE_SIZE_SCALED: f32 = 16.0 * 0.01;
 }
 
 use animate_sprites::AnimateSpritesPlugin;
@@ -18,27 +26,20 @@ use bevy::{prelude::*, render::{texture::ImageSettings}, window::PresentMode};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 
 mod components;
-mod diamond;
 mod animate_sprites;
-mod player;
 mod debug;
 mod tile_sheet;
 mod tile_map;
 mod plugins;
+mod camera_follow;
 
-use player::PlayerPlugin;
 use plugins::{player_input::PlayerInputPlugin, movement::MovementPlugin};
 use debug::DebugPlugin;
 use tile_sheet::TileSheetPlugin;
 use tile_map::TileMapPlugin;
 use bevy_ecs_tilemap::TilemapPlugin;
-
-pub const CLEAR: Color = Color::rgb(0.3, 0.3, 0.3);
-pub const HEIGHT: f32 = 900.0;
-pub const RESOLUTION: f32 = 16.0 / 9.0;
-pub const TILE_SIZE: f32 = 16.0;
-pub const TILE_SCALE: f32 = 0.01;
-pub const TILE_SIZE_SCALED: f32 = 16.0 * 0.01;
+use crate::camera_follow::CameraFollowPlugin;
+use prelude::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[derive(SystemLabel)]
@@ -74,7 +75,7 @@ fn main() {
         .add_plugin(WorldInspectorPlugin::new())
         .add_startup_system(spawn_camera)
         //.add_startup_system(setup)
-        .add_plugin(PlayerPlugin)
+        .add_plugin(CameraFollowPlugin)
         .add_plugin(DebugPlugin)
         .add_plugin(TileSheetPlugin)
         .add_plugin(TileMapPlugin)

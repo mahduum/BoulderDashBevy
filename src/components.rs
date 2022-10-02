@@ -1,29 +1,51 @@
-use std::{time::Duration, marker::PhantomData};
+use std::{marker::PhantomData, time::Duration};
 
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::TilePos;
+use bevy_inspector_egui::Inspectable;
 
-use crate::{animate_sprites::AnimationTimer};
+use crate::animate_sprites::AnimationTimer;
 
-pub trait SpriteIndexRuntime{
+pub struct PlayerPlugin;
+
+#[derive(Component, Inspectable)]
+pub struct Player {
+    speed: f32,
+    pub active: bool,
+}
+
+impl Player {
+    pub fn new() -> Self {
+        Player {
+            speed: 3.0,
+            active: true,
+        }
+    }
+}
+
+#[derive(Component, Inspectable)]
+pub struct Diamond{
+
+}
+
+pub trait SpriteIndexRuntime {
     fn get_sprite_index(&mut self, current_index: u32) -> u32;
 }
 
 #[derive(Component)]
-pub struct RockfordAnimation{//todo this should be a component in order to access timer ecs way, it cannot have a direct reference, this is for testing only, but maybe it could be simply made a component?
-    pub timer: AnimationTimer//todo this particular animation can also have its own timer outside in resources which it could access and modify but in a less readable way,
-                            // it would be a separate Query<(&mut RockfordAnimation, &mut RockfordAnimationTimer), (With<Player>)>
+pub struct RockfordAnimation {
+    //todo this should be a component in order to access timer ecs way, it cannot have a direct reference, this is for testing only, but maybe it could be simply made a component?
+    pub timer: AnimationTimer, //todo this particular animation can also have its own timer outside in resources which it could access and modify but in a less readable way,
+                               // it would be a separate Query<(&mut RockfordAnimation, &mut RockfordAnimationTimer), (With<Player>)>
 }
 
 /// Internal custom index getters for animations of Rockford. Can be rendered more complex and reactive to Rockford's stated by adding more functions, or accepting more arguments like state.
-impl<'a> RockfordAnimation{
-    
-    pub fn get_index_rockford_standing(&'a mut self, current_index: u32) -> u32{
+impl<'a> RockfordAnimation {
+    pub fn get_index_rockford_standing(&'a mut self, current_index: u32) -> u32 {
         let next_index = (current_index + 1) % 7;
         if next_index == 0 && self.timer.duration().as_secs_f32() < 1.0 {
             self.timer.set_duration(Duration::from_secs(3));
-        }
-        else if self.timer.duration().as_secs_f32() >= 1.0{
+        } else if self.timer.duration().as_secs_f32() >= 1.0 {
             self.timer.set_duration(Duration::from_millis(150))
         }
 
@@ -41,9 +63,9 @@ impl SpriteIndexRuntime for RockfordAnimation {
 
 //whatever has this component is intended to move (instead of wants to move try using only this one)
 #[derive(Component, Eq, PartialEq, Copy, Clone, Debug, Hash)]
-pub struct Delta{
+pub struct Delta {
     pub x: i32,
-    pub y: i32
+    pub y: i32,
 }
 
 impl Delta {
@@ -51,8 +73,8 @@ impl Delta {
     #[inline]
     #[must_use]
     pub fn new<T>(x: T, y: T) -> Delta
-                  where
-                          T: TryInto<i32>,
+    where
+        T: TryInto<i32>,
     {
         Delta {
             x: x.try_into().ok().unwrap_or(0),
@@ -74,8 +96,8 @@ impl Delta {
     #[inline]
     // Create a point from a tuple of two i32s
     pub fn from_tuple<T>(t: (T, T)) -> Self
-                         where
-                                 T: TryInto<i32>,
+    where
+        T: TryInto<i32>,
     {
         Delta::new(t.0, t.1)
     }
@@ -83,8 +105,8 @@ impl Delta {
     #[inline]
     /// Helper for map index conversion
     pub fn to_index<T>(self, width: T) -> usize
-                       where
-                               T: TryInto<usize>,
+    where
+        T: TryInto<usize>,
     {
         let x: usize = self.x.try_into().ok().unwrap();
         let y: usize = self.y.try_into().ok().unwrap();
@@ -158,10 +180,8 @@ impl From<Vec2> for Delta {
     }
 }
 
-
-
 #[derive(Component)]
-pub struct WantsToMove{
+pub struct WantsToMove {
     entity: Entity,
     destination: Delta,
 }

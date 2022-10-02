@@ -12,11 +12,11 @@ use bevy::render::texture::ImageSettings;
 use bevy_ecs_tilemap::TilemapBundle;
 use bevy_ecs_tilemap::prelude::*;
 
-use crate::{prelude::*, tile_sheet::sprite_sheet_bundle, RESOLUTION, TILE_SCALE, TILE_SIZE_SCALED, components::{SpriteIndexRuntime, RockfordAnimation}};
+use crate::prelude::*;
 
 use crate::{
     tile_sheet::{spawn_sprite_from_tile_sheet, TileSheet},
-    TILE_SIZE, player, diamond, animate_sprites
+    TILE_SIZE, animate_sprites
 };
 
 mod test_module;
@@ -177,7 +177,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 commands
                     .entity(tile_entity)
                     .insert(Name::new("Player"))
-                    .insert(player::Player::new())
+                    .insert(Player::new())
                     //.insert(AnimatedTile{start: 0, end: 7, speed: 0.7})
                     .insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true)))
                     .insert(animate_sprites::AnimatableGeneric{
@@ -191,7 +191,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
             else if index == TileType::Diamond {
                 commands.entity(tile_entity)
                 .insert(Name::new("Diamond"))
-                .insert(diamond::Diamond{})
+                .insert(Diamond{})
                 .insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true)))
                 .insert(animate_sprites::Animatable{
                     current_index: tile_texture.0,
