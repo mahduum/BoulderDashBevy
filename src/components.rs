@@ -1,8 +1,8 @@
 use std::{marker::PhantomData, time::Duration};
-
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::TilePos;
 use bevy_inspector_egui::Inspectable;
+use crate::prelude::*;
 
 use crate::animate_sprites::AnimationTimer;
 
@@ -28,11 +28,21 @@ pub struct Diamond{
 
 }
 
-pub trait SpriteIndexRuntime {
+#[derive(Component, Inspectable)]
+pub struct DataTransfer{
+    pub to: Entity,
+}
+
+impl DataTransfer{
+    pub fn move_to(to: Entity) -> Self{
+        DataTransfer {to}
+    }
+}
+pub trait SpriteIndexRuntime : DynClone{
     fn get_sprite_index(&mut self, current_index: u32) -> u32;
 }
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct RockfordAnimation {
     //todo this should be a component in order to access timer ecs way, it cannot have a direct reference, this is for testing only, but maybe it could be simply made a component?
     pub timer: AnimationTimer, //todo this particular animation can also have its own timer outside in resources which it could access and modify but in a less readable way,

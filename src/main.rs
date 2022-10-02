@@ -4,6 +4,8 @@
 
 mod prelude
 {
+    pub use dyn_clone::DynClone;
+    pub use std::borrow::BorrowMut;
     use bevy::prelude::Color;
     //put extern crates here
     pub use bevy_ecs_tilemap::prelude::*;
@@ -40,6 +42,7 @@ use tile_map::TileMapPlugin;
 use bevy_ecs_tilemap::TilemapPlugin;
 use crate::camera_follow::CameraFollowPlugin;
 use prelude::*;
+use crate::plugins::dig_tunnel::DigTunnelPlugin;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[derive(SystemLabel)]
@@ -84,6 +87,7 @@ fn main() {
         .add_plugin(AnimateSpritesPlugin)
         .add_plugin(PlayerInputPlugin)
         .add_plugin(MovementPlugin)
+        .add_plugin(DigTunnelPlugin)
         .run();
 }
 

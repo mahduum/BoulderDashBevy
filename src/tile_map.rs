@@ -46,7 +46,7 @@ const NUM_TILES: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
 //for now make tiles sprites, then make dynamic non tiles for fluent animation.
 //on movement first check for hits agains dynamic entitites, then check for static tile type
 //maybe only the tile bundle could be moved, transform changed from source tile to destination tile and reassinged to new tile?
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Component, Copy, Clone, PartialEq)]
 pub enum TileType {
     Wall,
     Dirt,
@@ -125,7 +125,7 @@ fn get_texture_atlas_indices() -> HashMap<(u32,u32), TileType>{
                     '.' => TileType::Dirt,
                     '_' => TileType::Tunnel,
                     'R' => TileType::Player,//Do it other way, separate dynamic from static?//spawn on a different layer???
-                    '*' => TileType::Diamond,
+                    '*' => TileType::Diamond,//Same here: these two dynamic are only for init, because tile type can only be static?
                     _ => TileType::Dirt,
                 });
             }
@@ -178,8 +178,9 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     .entity(tile_entity)
                     .insert(Name::new("Player"))
                     .insert(Player::new())
+                    .insert(TileType::Tunnel)//todo is temporary
                     //.insert(AnimatedTile{start: 0, end: 7, speed: 0.7})
-                    .insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true)))
+                    .insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true)))//todo double unnecessary timer insertion?
                     .insert(animate_sprites::AnimatableGeneric{
                         current_index: tile_texture.0,
                         sprite_index_provider: Box::new(
@@ -192,13 +193,19 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 commands.entity(tile_entity)
                 .insert(Name::new("Diamond"))
                 .insert(Diamond{})
+                .insert(TileType::Tunnel)//todo is temporary
                 .insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true)))
                 .insert(animate_sprites::Animatable{
                     current_index: tile_texture.0,
                     sprite_index_provider: animate_sprites::get_index_for_diamond
                 });
             }
+            else{
+                commands.entity(tile_entity)
+                        .insert(index);
+            }
 
+            //todo does non dynamic entities need translation?
             commands.entity(tile_entity)
                     .insert(Transform {
                         //transform has to be overwritten later what the position can be known  (or transform can be added later)

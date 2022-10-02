@@ -3,11 +3,13 @@ use std::time::Duration;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::TileTexture;
 
-use crate::{components::SpriteIndexRuntime, tile_map::SpriteIndex};
+use crate::tile_map::TileType;
+use crate::{components::SpriteIndexRuntime, tile_map::SpriteIndex, DataTransfer};
+use crate::prelude::*;
 
 pub struct AnimateSpritesPlugin;
 
-#[derive(Component, Deref, DerefMut)]
+#[derive(Component, Deref, DerefMut, Clone)]
 pub struct AnimationTimer(pub Timer);
 
 #[derive(Component)]
@@ -28,7 +30,7 @@ impl Animatable {
     }
 }
 
-#[derive(Component)]//todo can it simply extend normal Animatable? (to reuse the function
+#[derive(Component)] //todo can it simply extend normal Animatable? (to reuse the function
 pub struct AnimatableGeneric {
     pub current_index: u32,
     pub sprite_index_provider: Box<dyn SpriteIndexRuntime + Send + Sync>,
@@ -43,9 +45,19 @@ impl AnimatableGeneric {
     }
 }
 
+impl Clone for AnimatableGeneric {
+    fn clone(&self) -> Self{
+        AnimatableGeneric{
+            current_index: self.current_index,
+            sprite_index_provider: dyn_clone::clone_box(&*self.sprite_index_provider)//todo try in the future substitute with Rc<Cell>
+        }
+    }
+}
+
 impl Plugin for AnimateSpritesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(animate_sprites);
+        app.add_system(relocate_components.label("relocate").before("animate"))
+                .add_system(animate_sprites.label("animate").after("relocate"));
     }
 }
 
@@ -57,31 +69,49 @@ fn animate_sprites<'a, 'b>(
     //optionally both animation components could be wrapped in option and then check whichever is present
     mut set: ParamSet<(
         Query<(
-        &mut AnimationTimer,
-        &mut Animatable,
-        &mut TileTexture, //tile texture to have its index changed
+            &mut AnimationTimer,
+            &mut Animatable,
+            &mut TileTexture, //tile texture to have its index changed
         )>,
         Query<(
-        &mut AnimationTimer,
-        &mut AnimatableGeneric,
-        &mut TileTexture,
-        )>
-    )>
-
+            &mut AnimationTimer,
+            &mut AnimatableGeneric,
+            &mut TileTexture,
+        )>,
+    )>,
+    mut static_tiles_query: Query<(&mut TileTexture, &TileType), (Without<AnimatableGeneric>, Without<Animatable>)>
 ) {
     for (mut timer, mut animatable, mut tile_texture) in set.p0().iter_mut() {
         timer.tick(time.delta());
-        if timer.just_finished(){
+        if timer.just_finished() {
             *tile_texture = TileTexture(animatable.next_index());
         }
     }
 
     for (mut timer, mut animatable_generic, mut tile_texture) in set.p1().iter_mut() {
         timer.tick(time.delta());
-        if timer.just_finished(){
+        if timer.just_finished() {
             let next_index = animatable_generic.get_index();
             *tile_texture = TileTexture(next_index);
         }
+    }
+    
+    static_tiles_query.iter_mut().for_each(|(mut tile_tex, tile_type)|{
+        *tile_tex = TileTexture(tile_type.get_sprite_index());
+    })
+}
+
+//todo figure out
+fn relocate_components(
+    mut query: Query<(Entity, &DataTransfer, &AnimatableGeneric, &mut TileType)>,
+    mut commands: Commands,
+) {
+    //what to add after it was removed (todo later do this on layers)
+    for (entity, mut data, mut anim, mut tile) in query.iter_mut() {
+        //clone animatable generic with its data:
+        *tile = TileType::Tunnel;
+        commands.entity(data.to).insert(anim.clone());
+        commands.entity(entity).remove::<DataTransfer>().remove::<AnimatableGeneric>();
     }
 }
 

@@ -10,7 +10,7 @@ pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin{
 	fn build(&self, app: &mut App) {
-		app.add_system_to_stage(CoreStage::Update, movement);
+		app.add_system_to_stage(CoreStage::Update, movement.label("movement"));
 	}
 }
 
@@ -48,16 +48,23 @@ fn movement(
 		Some(info) => {
 			let storage = tile_storage.single();
 			if let Some(move_to_entity) = storage.get(&info.2){
-				commands.entity(info.0).remove::<Player>().remove::<Delta>();
+				//todo how to split animation update from movement??? sieve through components with this type of animation and update them depending on whether they still have the owning animation component
+				//todo if we have many entities of the same type (enemy) how we know whose animation timer and indexes are to be passed?
+				//example: the owning component (enemy) was transferred to a different entity, so then we find some anim component: how do we know to which entity we pass over its data?
+				//we must create transfer messages on movement complete, tuples (from entity, to entity) and then arrange for the passing of the infos in a separate system???
+				//add component DataTransfer from entity to entity and each transferable system that has need of transferring its data will be able to do it on its own
+				//we move from a to b, we
+				//add system for clearing passage, change entity type wherever rockford was
+				commands.entity(info.0).remove::<Player>().remove::<Delta>().insert(DataTransfer::move_to(move_to_entity));
 				commands.entity(move_to_entity).insert(Player::new())
-						.insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true)))
-						.insert(animate_sprites::AnimatableGeneric {
-							current_index: 0,
-							sprite_index_provider: Box::new(
-								RockfordAnimation {
-									timer: animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true))
-								})
-						});
+						.insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true)));
+						// .insert(animate_sprites::AnimatableGeneric {
+						// 	current_index: 0,
+						// 	sprite_index_provider: Box::new(
+						// 		RockfordAnimation {
+						// 			timer: animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true))
+						// 		})
+						// });
 				//continue with adding animatables
 			}
 		}

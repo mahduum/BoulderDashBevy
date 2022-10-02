@@ -29,5 +29,6 @@ ron = "0.7"
 rand = "0.8"
 bevy_ecs_tilemap = "0.7.0"
 once_cell = "1.13.1"
+dyn-clone = "1.0.9"
 
 # cargo run --release --features bevy/trace,bevy/trace_chrome
