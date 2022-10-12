@@ -56,7 +56,7 @@ impl Clone for AnimatableGeneric {
 
 impl Plugin for AnimateSpritesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(relocate_components.label("relocate").before("animate"))
+        app.add_system_to_stage(CoreStage::PreUpdate, relocate_components.label("relocate").before("animate"))
                 .add_system(animate_sprites.label("animate").after("relocate"));
     }
 }
@@ -95,7 +95,7 @@ fn animate_sprites<'a, 'b>(
             *tile_texture = TileTexture(next_index);
         }
     }
-    
+
     static_tiles_query.iter_mut().for_each(|(mut tile_tex, tile_type)|{
         *tile_tex = TileTexture(tile_type.get_sprite_index());
     })

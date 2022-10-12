@@ -1,4 +1,6 @@
+use std::borrow::Borrow;
 use std::io::stderr;
+use std::mem::replace;
 use crate::{
 	tile_map::TileCollider,
 	tile_sheet::{spawn_sprite_from_tile_sheet, TileSheet},
@@ -9,6 +11,40 @@ use bevy_inspector_egui::Inspectable;
 use crate::prelude::*;
 
 pub struct PlayerInputPlugin;
+
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum RockfordInputState <'a>
+{
+	Idle{last_direction: Box<&'a RockfordInputState<'a>>},
+	MovingLeft,
+	MovingRight,
+}
+
+impl<'a> RockfordInputState<'a>
+{
+	pub fn update_motion_state(&'static mut self, delta: &Delta)
+	{
+		if delta.x == 0 && delta.y == 0{
+			match self {
+				RockfordInputState::Idle{last_direction} =>
+					{},
+				_ => {
+					//let previous_state = Box::new(self.clone_into());
+					*self = RockfordInputState::Idle {last_direction: Box::new(&self.clone())}
+				}
+			}
+		} else if delta.x != 0 {
+			*self = match delta.x {
+				1 => RockfordInputState::MovingRight,
+				_ => RockfordInputState::MovingLeft,
+			}
+		} else if let RockfordInputState::Idle { last_direction, .. } = self {
+			*self = ***last_direction
+		}
+	}
+}
+
 
 impl Plugin for PlayerInputPlugin{
 	fn build(&self, app: &mut App) {
@@ -68,6 +104,8 @@ fn keyboard_input(
 		println!("Pressed S");
 		delta.y = -1;
 	}
+
+
 
 	if delta == Delta::zero(){
 		return;

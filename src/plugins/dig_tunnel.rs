@@ -8,10 +8,11 @@ pub struct DigTunnelPlugin;
 
 impl Plugin for DigTunnelPlugin{
 	fn build(&self, app: &mut App) {
-		app.add_system_to_stage(CoreStage::Update, dig.after("movement"));
+		app.add_system_to_stage(CoreStage::PreUpdate, dig.after("movement").before("relocate"));
 	}
 }
 
+//Todo: this should be updated before player enters the undug tile
 fn dig(removed: RemovedComponents<Player>, mut query: Query<(&mut TileType)>){
 	removed.iter().for_each(
 		|e|

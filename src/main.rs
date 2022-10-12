@@ -43,6 +43,7 @@ use bevy_ecs_tilemap::TilemapPlugin;
 use crate::camera_follow::CameraFollowPlugin;
 use prelude::*;
 use crate::plugins::dig_tunnel::DigTunnelPlugin;
+use crate::plugins::player_input::RockfordInputState;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[derive(SystemLabel)]
@@ -88,6 +89,7 @@ fn main() {
         .add_plugin(PlayerInputPlugin)
         .add_plugin(MovementPlugin)
         .add_plugin(DigTunnelPlugin)
+        .add_state(&RockfordInputState::Idle {last_direction: Box::new(&mut RockfordInputState::MovingLeft)})
         .run();
 }
 
