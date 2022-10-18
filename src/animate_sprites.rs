@@ -56,8 +56,8 @@ impl Clone for AnimatableGeneric {
 
 impl Plugin for AnimateSpritesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_to_stage(CoreStage::PreUpdate, relocate_components.label("relocate").before("animate"))
-                .add_system(animate_sprites.label("animate").after("relocate"));
+        app.add_system_to_stage(CoreStage::PreUpdate, relocate_components.label("relocate"))
+                .add_system(animate_sprites.label("animate"));
     }
 }
 

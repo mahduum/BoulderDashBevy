@@ -1,6 +1,7 @@
 #![allow(clippy::redundant_field_names)]
 #![allow(clippy::type_complexity)]
 #![allow(clippy::too_many_arguments)]
+//#![feature(box_into_inner)]
 
 mod prelude
 {
@@ -43,7 +44,7 @@ use bevy_ecs_tilemap::TilemapPlugin;
 use crate::camera_follow::CameraFollowPlugin;
 use prelude::*;
 use crate::plugins::dig_tunnel::DigTunnelPlugin;
-use crate::plugins::player_input::RockfordInputState;
+use crate::plugins::player_input::RockfordMotionState;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[derive(SystemLabel)]
@@ -79,6 +80,7 @@ fn main() {
         .add_plugin(WorldInspectorPlugin::new())
         .add_startup_system(spawn_camera)
         //.add_startup_system(setup)
+        .add_state(RockfordMotionState::Idle {last_direction: Box::new(RockfordMotionState::MovingLeft)})
         .add_plugin(CameraFollowPlugin)
         .add_plugin(DebugPlugin)
         .add_plugin(TileSheetPlugin)
@@ -89,7 +91,6 @@ fn main() {
         .add_plugin(PlayerInputPlugin)
         .add_plugin(MovementPlugin)
         .add_plugin(DigTunnelPlugin)
-        .add_state(&RockfordInputState::Idle {last_direction: Box::new(&mut RockfordInputState::MovingLeft)})
         .run();
 }
 

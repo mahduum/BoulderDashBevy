@@ -14,34 +14,35 @@ pub struct PlayerInputPlugin;
 
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub enum RockfordInputState <'a>
+pub enum RockfordMotionState
 {
-	Idle{last_direction: Box<&'a RockfordInputState<'a>>},
+	Idle{last_direction: Box<RockfordMotionState>},
 	MovingLeft,
 	MovingRight,
 }
 
-impl<'a> RockfordInputState<'a>
+impl RockfordMotionState
 {
-	pub fn update_motion_state(&'static mut self, delta: &Delta)
+	pub fn update_motion_state(&mut self, delta: &Delta)
 	{
 		if delta.x == 0 && delta.y == 0{
 			match self {
-				RockfordInputState::Idle{last_direction} =>
-					{},
+				RockfordMotionState::Idle{last_direction} =>
+					{},//if last state was idle do nothing
 				_ => {
-					//let previous_state = Box::new(self.clone_into());
-					*self = RockfordInputState::Idle {last_direction: Box::new(&self.clone())}
+					*self = RockfordMotionState::Idle {last_direction: Box::new(self.clone())}//if last state was not idle but delta was 0 make it idle and remember last direction
 				}
 			}
 		} else if delta.x != 0 {
 			*self = match delta.x {
-				1 => RockfordInputState::MovingRight,
-				_ => RockfordInputState::MovingLeft,
+				1 => RockfordMotionState::MovingRight,
+				_ => RockfordMotionState::MovingLeft,
 			}
-		} else if let RockfordInputState::Idle { last_direction, .. } = self {
-			*self = ***last_direction
+		} else if let RockfordMotionState::Idle { last_direction } = self {
+			//retrieve last direction to position sprite as it was before when moving vertically, steal it from the box
+			*self = *last_direction.to_owned();
 		}
+		//otherwise we are ok
 	}
 }
 
@@ -64,6 +65,7 @@ fn keyboard_input(
 	//wall_query: Query<&Transform, (With<TileCollider>, Without<Player>)>, //with constraint on the collider because we are not using data on it
 	mut keyboard: ResMut<Input<KeyCode>>,
 	time: Res<Time>,
+	mut motion_state: ResMut<State<RockfordMotionState>>,
 	mut commands: Commands
 ) {
 	//add tick frequency:
@@ -105,7 +107,14 @@ fn keyboard_input(
 		delta.y = -1;
 	}
 
+	let mut state = motion_state.current().clone();
+	state.update_motion_state(&delta);
+	if *motion_state.current() != state && motion_state.overwrite_replace(state).is_ok() == false{
+		eprintln!("Set state unsuccessful!");
+		return;
+	}
 
+	println!("Set state successful!");
 
 	if delta == Delta::zero(){
 		return;

@@ -8,7 +8,7 @@ pub struct DigTunnelPlugin;
 
 impl Plugin for DigTunnelPlugin{
 	fn build(&self, app: &mut App) {
-		app.add_system_to_stage(CoreStage::PreUpdate, dig.after("movement").before("relocate"));
+		app.add_system_to_stage(CoreStage::PreUpdate, dig);
 	}
 }
 
