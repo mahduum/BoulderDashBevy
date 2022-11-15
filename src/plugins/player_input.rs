@@ -114,6 +114,8 @@ fn keyboard_input(
 		return;
 	}
 
+	motion_state.pop();
+
 	println!("Set state successful!");
 
 	if delta == Delta::zero(){
