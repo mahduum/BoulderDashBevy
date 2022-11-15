@@ -26,6 +26,7 @@ mod prelude
 
 use animate_sprites::AnimateSpritesPlugin;
 use bevy::{prelude::*, render::{texture::ImageSettings}, window::PresentMode};
+use bevy::render::camera::ScalingMode;
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 
 mod components;
@@ -67,11 +68,11 @@ fn main() {
             width: HEIGHT * RESOLUTION,
             height: HEIGHT,
             title: "Bevy Template".to_string(),
-            // present_mode: PresentMode::Fifo,
-            // resizable: false,
+            present_mode: PresentMode::Fifo,
+            resizable: true,
             ..Default::default()
         })
-        .insert_resource(ImageSettings::default_nearest())
+        //.insert_resource(ImageSettings::default_nearest())
         .add_plugins(DefaultPlugins)
         .insert_resource(WorldInspectorParams {
             enabled: false,
@@ -102,12 +103,18 @@ fn spawn_camera(mut commands: Commands) {
         bottom: -1.0,
         top: 1.0,
         far: 1000.0,
+        scale: 1.0,
+        //scaling_mode : ScalingMode::Auto {min_width: DISPLAY_WIDTH as f32, min_height: DISPLAY_HEIGHT as f32},
+        scaling_mode : ScalingMode::None,
         ..Default::default()};
 
-    commands.spawn_bundle(Camera2dBundle{
+    commands.spawn_bundle(
+        //Camera2dBundle::new_with_far(1000.0)
+        Camera2dBundle{
         projection,
         ..Default::default()
-    });
+    }
+);
 }
 
 fn toggle_inspector(
