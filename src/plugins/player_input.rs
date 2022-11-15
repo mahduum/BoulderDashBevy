@@ -7,7 +7,7 @@ use crate::{
 };
 use bevy::{prelude::*, sprite::collide_aabb::collide};
 use bevy_ecs_tilemap::prelude::TilePos;
-use bevy_inspector_egui::Inspectable;
+//use bevy_inspector_egui::Inspectable;
 use crate::prelude::*;
 
 pub struct PlayerInputPlugin;

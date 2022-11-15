@@ -25,9 +25,9 @@ mod prelude
 }
 
 use animate_sprites::AnimateSpritesPlugin;
-use bevy::{prelude::*, render::{texture::ImageSettings}, window::PresentMode};
+use bevy::{prelude::*, window::PresentMode};
 use bevy::render::camera::ScalingMode;
-use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
+//use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 
 mod components;
 mod animate_sprites;
@@ -63,22 +63,26 @@ enum MyLabel {
 //todo: is there a function in plugin that remeber what is on what tile?
 fn main() {
     App::new()
-        //.insert_resource(ClearColor(CLEAR))//clear color
-        .insert_resource(WindowDescriptor {//basic window properties
-            width: HEIGHT * RESOLUTION,
-            height: HEIGHT,
-            title: "Bevy Template".to_string(),
-            present_mode: PresentMode::Fifo,
-            resizable: true,
-            ..Default::default()
-        })
-        //.insert_resource(ImageSettings::default_nearest())
-        .add_plugins(DefaultPlugins)
-        .insert_resource(WorldInspectorParams {
-            enabled: false,
-            ..Default::default()
-        })
-        .add_plugin(WorldInspectorPlugin::new())
+        .add_plugins(DefaultPlugins
+                .set(ImagePlugin::default_nearest())
+                .set(WindowPlugin {
+                    window: WindowDescriptor {
+                        width: HEIGHT * RESOLUTION,
+                        height: HEIGHT,
+                        monitor: MonitorSelection::Index(1),
+                        position: WindowPosition::Centered,
+                        ..default()
+                    },
+                    add_primary_window: true,
+                    exit_on_all_closed: true,
+                    close_when_requested: true
+                }))
+                    //..default()))
+        // .insert_resource(WorldInspectorParams {//todo update for bevy 0_9
+        //     enabled: false,
+        //     ..Default::default()
+        // })
+        //.add_plugin(WorldInspectorPlugin::new())
         .add_startup_system(spawn_camera)
         //.add_startup_system(setup)
         .add_state(RockfordMotionState::Idle {last_direction: Box::new(RockfordMotionState::MovingLeft)})
@@ -87,7 +91,7 @@ fn main() {
         .add_plugin(TileSheetPlugin)
         .add_plugin(TileMapPlugin)
         .add_plugin(TilemapPlugin)
-        .add_system(toggle_inspector)
+            //.add_system(toggle_inspector)//todo not available in bevy 0.9
         .add_plugin(AnimateSpritesPlugin)
         .add_plugin(PlayerInputPlugin)
         .add_plugin(MovementPlugin)
@@ -103,28 +107,24 @@ fn spawn_camera(mut commands: Commands) {
         bottom: -1.0,
         top: 1.0,
         far: 1000.0,
-        scale: 1.0,
-        //scaling_mode : ScalingMode::Auto {min_width: DISPLAY_WIDTH as f32, min_height: DISPLAY_HEIGHT as f32},
-        scaling_mode : ScalingMode::None,
-        ..Default::default()};
+        scaling_mode: ScalingMode::None,
+        ..Default::default()
+    };
 
-    commands.spawn_bundle(
-        //Camera2dBundle::new_with_far(1000.0)
-        Camera2dBundle{
+    commands.spawn_bundle(Camera2dBundle{
         projection,
         ..Default::default()
-    }
-);
+    });
 }
-
-fn toggle_inspector(
-    input: ResMut<Input<KeyCode>>,
-    mut window_params: ResMut<WorldInspectorParams>,
-) {
-    if input.just_pressed(KeyCode::Grave) {
-        window_params.enabled = !window_params.enabled
-    }
-}
+// todo: not compiling in Bevy 0.9
+// fn toggle_inspector(
+//     input: ResMut<Input<KeyCode>>,
+//     mut window_params: ResMut<WorldInspectorParams>,
+// ) {
+//     if input.just_pressed(KeyCode::Grave) {
+//         window_params.enabled = !window_params.enabled
+//     }
+// }
 
 #[allow(dead_code)]
 fn slow_down() {

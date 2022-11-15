@@ -1,7 +1,8 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use bevy_ecs_tilemap::tiles::TileTexture;
+//use bevy_ecs_tilemap::tiles::TileTextureIndex;
+use bevy_ecs_tilemap::tiles::TileTextureIndex;
 
 use crate::tile_map::TileType;
 use crate::{components::SpriteIndexRuntime, tile_map::SpriteIndex, DataTransfer};
@@ -71,20 +72,20 @@ fn animate_sprites<'a, 'b>(
         Query<(
             &mut AnimationTimer,
             &mut Animatable,
-            &mut TileTexture, //tile texture to have its index changed
+            &mut TileTextureIndex, //tile texture to have its index changed
         )>,
         Query<(
             &mut AnimationTimer,
             &mut AnimatableGeneric,
-            &mut TileTexture,
+            &mut TileTextureIndex,
         )>,
     )>,
-    mut static_tiles_query: Query<(&mut TileTexture, &TileType), (Without<AnimatableGeneric>, Without<Animatable>)>
+    mut static_tiles_query: Query<(&mut TileTextureIndex, &TileType), (Without<AnimatableGeneric>, Without<Animatable>)>
 ) {
     for (mut timer, mut animatable, mut tile_texture) in set.p0().iter_mut() {
         timer.tick(time.delta());
         if timer.just_finished() {
-            *tile_texture = TileTexture(animatable.next_index());
+            *tile_texture = TileTextureIndex(animatable.next_index());
         }
     }
 
@@ -92,12 +93,12 @@ fn animate_sprites<'a, 'b>(
         timer.tick(time.delta());
         if timer.just_finished() {
             let next_index = animatable_generic.get_index();
-            *tile_texture = TileTexture(next_index);
+            *tile_texture = TileTextureIndex(next_index);
         }
     }
 
     static_tiles_query.iter_mut().for_each(|(mut tile_tex, tile_type)|{
-        *tile_tex = TileTexture(tile_type.get_sprite_index());
+        *tile_tex = TileTextureIndex(tile_type.get_sprite_index());
     })
 }
 

@@ -2,12 +2,11 @@ use std::{
     fs::File,
     io::{BufRead, BufReader}, collections::HashMap, sync::Arc,
 };
-use bevy_inspector_egui::Inspectable;
+//use bevy_inspector_egui::Inspectable;
 use rand::{thread_rng, Rng};
 
 use bevy::{prelude::*, reflect::GetTypeRegistration};
 use bevy::reflect;
-use bevy::render::texture::ImageSettings;
 
 use bevy_ecs_tilemap::TilemapBundle;
 use bevy_ecs_tilemap::prelude::*;
@@ -23,7 +22,7 @@ mod test_module;
 //use player;
 
 //todo how to move from tile to tile? gradualy or in an instance
-#[derive(Component, Inspectable)]
+#[derive(Component)]
 pub struct Tile{
   pub spriteAtlasIndex: u32,
 }
@@ -143,7 +142,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let tilemap_size = TilemapSize { x: 18, y: 8 };
     let mut tile_storage = TileStorage::empty(tilemap_size);
     // Create map entity and component:
-    let tilemap_entity = commands.spawn().id();//empty entity
+    let tilemap_entity = commands.spawn_empty().id();//empty entity
     let tile_sprite_indices = get_texture_atlas_indices();
 
     //todo keep a map of tiles as resource -> what kind of tile is on which position -> this is already taken care of by tiles plugin? use example from game of life
@@ -159,13 +158,12 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 continue;
             };
 
-            let tile_texture = TileTexture(index.get_sprite_index());//get the tile texture index from file buffer
-            //let tile_texture = TileTexture(45);//get the tile texture index from file buffer
+            let tile_texture = TileTextureIndex(index.get_sprite_index());//get the tile texture index from file buffer
+            //let tile_texture = TileTextureIndex(45);//get the tile texture index from file buffer
             let tile_entity = commands
-                    .spawn()
-                    .insert_bundle(TileBundle {
+                    .spawn(TileBundle {
                         position: tile_pos,
-                        texture: tile_texture,
+                        texture_index: tile_texture,
                         tilemap_id: TilemapId(tilemap_entity),
                         visible: TileVisible(true),
                         ..Default::default()
@@ -180,12 +178,12 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     .insert(Player::new())
                     .insert(TileType::Tunnel)//todo is temporary
                     //.insert(AnimatedTile{start: 0, end: 7, speed: 0.7})
-                    .insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true)))//todo double unnecessary timer insertion?
+                    .insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)))//todo double unnecessary timer insertion?
                     .insert(animate_sprites::AnimatableGeneric{
                         current_index: tile_texture.0,
                         sprite_index_provider: Box::new(
                             // takes in a trait SpriteRuntimeIndex
-                            RockfordAnimation{timer: animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true))
+                            RockfordAnimation{timer: animate_sprites::AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating))
                         })
                     });
             }
@@ -194,7 +192,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 .insert(Name::new("Diamond"))
                 .insert(Diamond{})
                 .insert(TileType::Tunnel)//todo is temporary
-                .insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true)))
+                .insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)))
                 .insert(animate_sprites::Animatable{
                     current_index: tile_texture.0,
                     sprite_index_provider: animate_sprites::get_index_for_diamond
@@ -213,7 +211,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                         translation: Vec3::new(x as f32 * TILE_SIZE_SCALED, y as f32 * TILE_SIZE_SCALED, 900.0),
                         ..Default::default()});
 
-            tile_storage.set(&tile_pos, Some(tile_entity));
+            tile_storage.set(&tile_pos, tile_entity);
         }
     }
 
@@ -234,7 +232,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 grid_size: TilemapGridSize { x: 16.0, y: 16.0 },
                 size: tilemap_size,
                 storage: tile_storage,
-                texture: TilemapTexture(texture_handle),
+                texture: TilemapTexture::Single(texture_handle),
                 tile_size,
                 transform: //get_centered_transform_2d(&tilemap_size, &tile_size, 100.0),//.with_scale(Vec3 { x: 0.1, y: 0.1, z: 0.1 }),
                 Transform::from_xyz(

@@ -1,14 +1,14 @@
 use std::{marker::PhantomData, time::Duration};
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::TilePos;
-use bevy_inspector_egui::Inspectable;
+//use bevy_inspector_egui::Inspectable;
 use crate::prelude::*;
 
 use crate::animate_sprites::AnimationTimer;
 
 pub struct PlayerPlugin;
 
-#[derive(Component, Inspectable)]
+#[derive(Component)]
 pub struct Player {
     speed: f32,
     pub active: bool,
@@ -23,12 +23,12 @@ impl Player {
     }
 }
 
-#[derive(Component, Inspectable)]
+#[derive(Component)]
 pub struct Diamond{
 
 }
 
-#[derive(Component, Inspectable)]
+#[derive(Component)]
 pub struct DataTransfer{
     pub to: Entity,
 }

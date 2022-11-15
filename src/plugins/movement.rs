@@ -1,7 +1,8 @@
 use bevy::app::{App, Plugin};
-use bevy::prelude::{Entity, Query, ParallelSystemDescriptorCoercion};
-use bevy::time::Timer;
+use bevy::prelude::{Entity, Query};// ParallelSystemDescriptorCoercion};
+use bevy::time::{Timer, TimerMode};
 use bevy_ecs_tilemap::tiles::{TilePos, TileStorage};
+use bevy::prelude::IntoSystemDescriptor;
 use crate::animate_sprites::{Animatable, AnimatableGeneric};
 use crate::{animate_sprites, Commands, CoreStage, MyLabel};
 use crate::prelude::*;
@@ -57,7 +58,7 @@ fn movement(
 				//add system for clearing passage, change entity type wherever rockford was
 				commands.entity(info.0).remove::<Player>().remove::<Delta>().insert(DataTransfer::move_to(move_to_entity));
 				commands.entity(move_to_entity).insert(Player::new())
-						.insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, true)));
+						.insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)));
 						// .insert(animate_sprites::AnimatableGeneric {
 						// 	current_index: 0,
 						// 	sprite_index_provider: Box::new(

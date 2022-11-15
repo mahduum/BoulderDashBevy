@@ -1,6 +1,6 @@
 use bevy::app::Plugin;
 use bevy::prelude::{Query, RemovedComponents};
-use crate::{App, CoreStage, ParallelSystemDescriptorCoercion};
+use crate::{App, CoreStage};//ParallelSystemDescriptorCoercion};
 use crate::tile_map::TileType;
 use crate::prelude::*;
 

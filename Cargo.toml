@@ -1,6 +1,6 @@
 [package]
 name = "bevy_template"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 [profile.dev]
@@ -10,24 +10,24 @@ opt-level = 1
 opt-level = 3
 
 [dependencies]
-bevy = { version = "0.8", features = [
-    "bevy_gilrs",
-    "bevy_winit",
-    "render",
-    "png",
-    "hdr",
-    "vorbis",
-    "x11",
-    "filesystem_watcher",
-    "trace",
+bevy = { version = "0.9", features = [
+    #"bevy_gilrs",
+    #"bevy_winit",
+    #"render",
+    #"png",
+    #"hdr",
+    #"vorbis",
+    #"x11",
+    #"filesystem_watcher",
+    #"trace",
      ] }
 
 bevy_kira_audio = { version = "0.12.0", features = ["ogg", "wav"] }
-bevy-inspector-egui = "0.12.1"
+#bevy-inspector-egui = "0.12.1"
 serde = "1.0"
 ron = "0.7"
 rand = "0.8"
-bevy_ecs_tilemap = "0.7.0"
+bevy_ecs_tilemap = "0.9.0"
 once_cell = "1.13.1"
 dyn-clone = "1.0.9"
 

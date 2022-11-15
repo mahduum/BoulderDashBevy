@@ -2,6 +2,8 @@ use bevy::{prelude::*, ecs::{system::Command, entity::Entities}};
 use crate::TILE_SIZE;
 
 pub struct TileSheetPlugin;
+
+#[derive(Resource)]
 pub struct TileSheet(Handle<TextureAtlas>);
 
 impl Plugin for TileSheetPlugin{
@@ -66,7 +68,7 @@ fn load_tiles(
 )
 {
     let image: Handle<Image> = assets.load("textures/chars/boulder_dash.png");
-    let texture_atlas = TextureAtlas::from_grid(image, Vec2::new(16.0, 16.0), 10, 8);
+    let texture_atlas = TextureAtlas::from_grid(image, Vec2::new(16.0, 16.0), 10, 8, None, None);
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
     // let atlas = TextureAtlas::from_grid_with_padding(
     //     image,

@@ -4,7 +4,7 @@ use crate::{
     MyLabel, TILE_SCALE, TILE_SIZE,
 };
 use bevy::{prelude::*, sprite::collide_aabb::collide};
-use bevy_inspector_egui::Inspectable;
+//use bevy_inspector_egui::Inspectable;
 use crate::prelude::*;
 
 pub struct CameraFollowPlugin;
