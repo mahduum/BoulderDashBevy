@@ -44,6 +44,7 @@ pub trait SpriteIndexRuntime : DynClone{
 
 #[derive(Component, Clone)]
 pub struct RockfordAnimation {
+    //todo if it carries the timer with it self then it is ecs inefficient, it should be accessed as resource, and use it as argument, but then also the care must be taken for the signature
     //todo this should be a component in order to access timer ecs way, it cannot have a direct reference, this is for testing only, but maybe it could be simply made a component?
     pub timer: AnimationTimer, //todo this particular animation can also have its own timer outside in resources which it could access and modify but in a less readable way,
                                // it would be a separate Query<(&mut RockfordAnimation, &mut RockfordAnimationTimer), (With<Player>)>

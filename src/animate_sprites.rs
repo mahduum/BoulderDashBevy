@@ -97,6 +97,7 @@ fn animate_sprites<'a, 'b>(
         }
     }
 
+    //todo is it necessary to continuously animate the same image on every static tile?
     static_tiles_query.iter_mut().for_each(|(mut tile_tex, tile_type)|{
         *tile_tex = TileTextureIndex(tile_type.get_sprite_index());
     })
