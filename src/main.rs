@@ -111,8 +111,11 @@ fn spawn_camera(mut commands: Commands) {
         ..Default::default()
     };
 
-    commands.spawn_bundle(Camera2dBundle{
-        projection,
+    commands.spawn(Camera2dBundle{
+        projection: OrthographicProjection{
+            scaling_mode: ScalingMode::FixedVertical(RESOLUTION),
+            ..Default::default()
+        },
         ..Default::default()
     });
 }
