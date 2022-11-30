@@ -4,9 +4,10 @@ use bevy::prelude::*;
 //use bevy_ecs_tilemap::tiles::TileTextureIndex;
 use bevy_ecs_tilemap::tiles::TileTextureIndex;
 
+use crate::plugins::player_input::RockfordMotionState;
+use crate::prelude::*;
 use crate::tile_map::TileType;
 use crate::{components::SpriteIndexRuntime, tile_map::SpriteIndex, DataTransfer};
-use crate::prelude::*;
 
 pub struct AnimateSpritesPlugin;
 
@@ -34,23 +35,38 @@ impl Animatable {
 #[derive(Component)] //todo can it simply extend normal Animatable? (to reuse the function
 pub struct AnimatableGeneric {
     pub current_index: u32,
+    pub current_state: RockfordMotionState,
     pub sprite_index_provider: Box<dyn SpriteIndexRuntime + Send + Sync>,
 }
 
 /// Provides a way for implementing more complex custom animations for dissimilar types
 impl AnimatableGeneric {
     pub fn get_index(&mut self) -> u32 {
-        let next_index = (*self.sprite_index_provider).get_sprite_index(self.current_index);
+        // if state changed then detect the change and set current index to invalid? so get sprite index could now that is must start "fresh"
+        // state or AnimatableGeneric must have logic to provide first index and to detect state change if there is a state in the option
+        // TODO: update current index (todo should be done in a separate system, each animatable generic that can accept state as arg, like AnimatableGeneric<RockfordMotionState>)
+        // for now short cut in update state:
+        let next_index =
+            (*self.sprite_index_provider).get_sprite_index(self.current_index, &self.current_state); //current index is already updated but we need to pass state as well
         self.current_index = next_index;
         self.current_index
+    }
+
+    //todo UNUSED!
+    pub fn update_state(&mut self, state: RockfordMotionState) {
+        if self.current_state != state {
+            self.current_state = state.clone();
+            self.current_index = state.get_first_frame_index();
+        }
     }
 }
 
 impl Clone for AnimatableGeneric {
-    fn clone(&self) -> Self{
-        AnimatableGeneric{
+    fn clone(&self) -> Self {
+        AnimatableGeneric {
             current_index: self.current_index,
-            sprite_index_provider: dyn_clone::clone_box(&*self.sprite_index_provider)//todo try in the future substitute with Rc<Cell>
+            current_state: self.current_state.clone(),
+            sprite_index_provider: dyn_clone::clone_box(&*self.sprite_index_provider), //todo try in the future substitute with Rc<Cell>
         }
     }
 }
@@ -58,14 +74,15 @@ impl Clone for AnimatableGeneric {
 impl Plugin for AnimateSpritesPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_to_stage(CoreStage::PreUpdate, relocate_components.label("relocate"))
-                .add_system(animate_sprites.label("animate"));
+            .add_system(animate_sprites);
     }
 }
 
 //this can be split to different animatable components, but the component can get the way (function delegate) to provide the right index
-fn animate_sprites<'a, 'b>(
+fn animate_sprites(
     time: Res<Time>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    rockford_motion_state: Res<State<RockfordMotionState>>,
+    texture_atlases: ResMut<Assets<TextureAtlas>>,
     //making set of queries because they access simultaneously common components and can have mutability conflicts over the same data
     //optionally both animation components could be wrapped in option and then check whichever is present
     mut set: ParamSet<(
@@ -80,7 +97,10 @@ fn animate_sprites<'a, 'b>(
             &mut TileTextureIndex,
         )>,
     )>,
-    mut static_tiles_query: Query<(&mut TileTextureIndex, &TileType), (Without<AnimatableGeneric>, Without<Animatable>)>
+    mut static_tiles_query: Query<
+        (&mut TileTextureIndex, &TileType),
+        (Without<AnimatableGeneric>, Without<Animatable>),
+    >,
 ) {
     for (mut timer, mut animatable, mut tile_texture) in set.p0().iter_mut() {
         timer.tick(time.delta());
@@ -90,6 +110,7 @@ fn animate_sprites<'a, 'b>(
     }
 
     for (mut timer, mut animatable_generic, mut tile_texture) in set.p1().iter_mut() {
+        animatable_generic.update_state(rockford_motion_state.current().clone());
         timer.tick(time.delta());
         if timer.just_finished() {
             let next_index = animatable_generic.get_index();
@@ -98,9 +119,11 @@ fn animate_sprites<'a, 'b>(
     }
 
     //todo is it necessary to continuously animate the same image on every static tile?
-    static_tiles_query.iter_mut().for_each(|(mut tile_tex, tile_type)|{
-        *tile_tex = TileTextureIndex(tile_type.get_sprite_index());
-    })
+    static_tiles_query
+        .iter_mut()
+        .for_each(|(mut tile_tex, tile_type)| {
+            *tile_tex = TileTextureIndex(tile_type.get_sprite_index());
+        })
 }
 
 //todo figure out
@@ -113,7 +136,10 @@ fn relocate_components(
         //clone animatable generic with its data:
         *tile = TileType::Tunnel;
         commands.entity(data.to).insert(anim.clone());
-        commands.entity(entity).remove::<DataTransfer>().remove::<AnimatableGeneric>();
+        commands
+            .entity(entity)
+            .remove::<DataTransfer>()
+            .remove::<AnimatableGeneric>();
     }
 }
 
@@ -143,6 +169,7 @@ struct PauseAnimation(bool);
 //     }
 // }
 
+#[allow(dead_code)]
 pub fn get_index_rockford_standing(current_index: u32, mut timer: Mut<AnimationTimer>) -> u32 {
     let next_index = (current_index + 1) % 7;
     if next_index == 0 && timer.duration().as_secs_f32() < 1.0 {
@@ -154,11 +181,13 @@ pub fn get_index_rockford_standing(current_index: u32, mut timer: Mut<AnimationT
     next_index
 }
 
+#[allow(dead_code)]
 pub fn get_index_rockford_walk_left(current_index: u32) -> u32 {
     (current_index + 1) % 7 + 10
 }
 
-fn get_index_rockford_walk_right(current_index: usize) -> usize {
+#[allow(dead_code)]
+pub fn get_index_rockford_walk_right(current_index: usize) -> usize {
     (current_index + 1) % 7 + 20
 }
 

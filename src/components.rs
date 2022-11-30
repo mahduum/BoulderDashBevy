@@ -1,7 +1,9 @@
-use std::{marker::PhantomData, time::Duration};
+use bevy::ecs::schedule::StateData;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::TilePos;
+use std::{marker::PhantomData, time::Duration};
 //use bevy_inspector_egui::Inspectable;
+use crate::plugins::player_input::*;
 use crate::prelude::*;
 
 use crate::animate_sprites::AnimationTimer;
@@ -24,22 +26,21 @@ impl Player {
 }
 
 #[derive(Component)]
-pub struct Diamond{
-
-}
+pub struct Diamond {}
 
 #[derive(Component)]
-pub struct DataTransfer{
+pub struct DataTransfer {
     pub to: Entity,
 }
 
-impl DataTransfer{
-    pub fn move_to(to: Entity) -> Self{
-        DataTransfer {to}
+impl DataTransfer {
+    // for transferring the player with its data onto another tile
+    pub fn move_to(to: Entity) -> Self {
+        DataTransfer { to }
     }
 }
-pub trait SpriteIndexRuntime : DynClone{
-    fn get_sprite_index(&mut self, current_index: u32) -> u32;
+pub trait SpriteIndexRuntime: DynClone {
+    fn get_sprite_index(&mut self, current_index: u32, current_state: &RockfordMotionState) -> u32;
 }
 
 #[derive(Component, Clone)]
@@ -67,7 +68,8 @@ impl<'a> RockfordAnimation {
 //'a : 'b means "a outlives b"
 /// Implementation of runtime animation index that allows using internal Rockford animation functions in a generic context and in a way that details are hidden.
 impl SpriteIndexRuntime for RockfordAnimation {
-    fn get_sprite_index(&mut self, current_index: u32) -> u32 {
+    //TODO sprite index runtime for rockford can have generic T for state
+    fn get_sprite_index(&mut self, current_index: u32, current_state: &RockfordMotionState) -> u32 {
         self.get_index_rockford_standing(current_index)
     }
 }
