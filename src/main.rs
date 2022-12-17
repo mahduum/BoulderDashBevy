@@ -11,6 +11,7 @@ mod prelude
     //put extern crates here
     pub use bevy_ecs_tilemap::prelude::*;
     pub use crate::components::*;
+    pub use crate::resources::*;
 
 	pub const SCREEN_WIDTH: i32 = 80;
 	pub const SCREEN_HEIGHT: i32 = 50;
@@ -36,6 +37,7 @@ mod tile_sheet;
 mod tile_map;
 mod plugins;
 mod camera_follow;
+mod resources;
 
 use plugins::{player_input::PlayerInputPlugin, movement::MovementPlugin};
 use debug::DebugPlugin;
@@ -46,6 +48,8 @@ use crate::camera_follow::CameraFollowPlugin;
 use prelude::*;
 use crate::plugins::dig_tunnel::DigTunnelPlugin;
 use crate::plugins::player_input::RockfordMotionState;
+use crate::plugins::sprite_animation::SpriteAnimationPlugin;
+use crate::resources::sprite_sequences_resource::SpriteAnimationSequences;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[derive(SystemLabel)]
@@ -96,6 +100,8 @@ fn main() {
         .add_plugin(PlayerInputPlugin)
         .add_plugin(MovementPlugin)
         .add_plugin(DigTunnelPlugin)
+        .add_plugin(SpriteAnimationPlugin)
+        .init_resource::<SpriteAnimationSequences>()
         .run();
 }
 

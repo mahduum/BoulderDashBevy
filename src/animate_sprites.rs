@@ -216,11 +216,12 @@ pub fn get_index_for_diamond(current_index: u32) -> u32 {
         }
     }
 
+    println!("diamond index: {}", next_index);
     next_index
 }
 
 fn get_index_vertical_animation(current_index: u32, start_offset: u32) -> u32 {
-    if current_index < start_offset {
+    if current_index <= start_offset {
         return start_offset;
     }
 

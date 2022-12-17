@@ -17,6 +17,7 @@ use crate::{
     tile_sheet::{spawn_sprite_from_tile_sheet, TileSheet},
     TILE_SIZE, animate_sprites
 };
+use crate::plugins::sprite_animation;
 
 mod test_module;
 //use player;
@@ -158,6 +159,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 continue;
             };
 
+            //set default image (first frame or the only frame)
             let tile_texture = TileTextureIndex(index.get_sprite_index());//get the tile texture index from file buffer
             //let tile_texture = TileTextureIndex(45);//get the tile texture index from file buffer
             let tile_entity = commands
@@ -193,11 +195,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 .insert(Name::new("Diamond"))
                 .insert(Diamond{})
                 .insert(TileType::Tunnel)//todo is temporary
-                .insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)))
-                .insert(animate_sprites::Animatable{
-                    current_index: tile_texture.0,
-                    sprite_index_provider: animate_sprites::get_index_for_diamond
-                });
+                .insert(sprite_animation::SpriteAnimationPlayer::default());
             }
             else{
                 commands.entity(tile_entity)
