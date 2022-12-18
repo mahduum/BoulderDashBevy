@@ -28,6 +28,7 @@ mod prelude
 use animate_sprites::AnimateSpritesPlugin;
 use bevy::{prelude::*, window::PresentMode};
 use bevy::render::camera::ScalingMode;
+use bevy::utils::define_label;
 //use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 
 mod components;
@@ -62,6 +63,14 @@ enum MyLabel {
     Movement,
     /// systems that update the world map
     Camera,
+}
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(StageLabel)]
+enum MovementStage{
+    Moving,
+    Digging
 }
 
 //todo: is there a function in plugin that remeber what is on what tile?
@@ -102,6 +111,8 @@ fn main() {
         .add_plugin(DigTunnelPlugin)
         .add_plugin(SpriteAnimationPlugin)
         .init_resource::<SpriteAnimationSequences>()
+        .add_stage_before(CoreStage::Update, MovementStage::Moving, SystemStage::parallel())
+        .add_stage_after(CoreStage::Update, MovementStage::Digging, SystemStage::parallel())
         .run();
 }
 

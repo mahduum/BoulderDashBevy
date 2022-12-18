@@ -179,23 +179,14 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     .insert(Name::new("Player"))
                     .insert(Player::new())
                     .insert(TileType::Tunnel)//todo is temporary
-                    //.insert(AnimatedTile{start: 0, end: 7, speed: 0.7})
-                    .insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)))//todo double unnecessary timer insertion?
-                    .insert(animate_sprites::AnimatableGeneric{
-                        current_index: tile_texture.0,//todo for now leave as is but later there must be a map to first indexes for states
-                        current_state: crate::plugins::player_input::RockfordMotionState::Idle { last_direction: Box::new(crate::plugins::player_input::RockfordMotionState::MovingLeft)},
-                        sprite_index_provider: Box::new(
-                            // takes in a trait SpriteRuntimeIndex
-                            RockfordAnimation{timer: animate_sprites::AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating))
-                        })
-                    });
+                    .insert(sprite_animation::SpriteAnimationPlayer::new(Name::new("RockfordStanding")));
             }
             else if index == TileType::Diamond {
                 commands.entity(tile_entity)
                 .insert(Name::new("Diamond"))
                 .insert(Diamond{})
                 .insert(TileType::Tunnel)//todo is temporary
-                .insert(sprite_animation::SpriteAnimationPlayer::default());
+                .insert(sprite_animation::SpriteAnimationPlayer::new(Name::new("DiamondShining")));//todo missing sprite animation player on rockford
             }
             else{
                 commands.entity(tile_entity)

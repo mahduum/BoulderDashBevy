@@ -74,16 +74,6 @@ impl SpriteIndexRuntime for RockfordAnimation {
     }
 }
 
-
-#[derive(Component)]
-//todo can be change to simple (pub fn(usize) -> usize)
-pub struct SpriteAnimationPlayer
-//receives as arg animatable struct or trait or func, so we know what to use
-{
-    pub current_index: u32,
-    pub sequence_provider: fn(u32) -> u32,
-}
-
 //todo make this a file with parsed sequence:
 #[derive(Clone, Debug)]
 pub struct SpriteAnimationSequence<'a>{
@@ -103,6 +93,8 @@ impl<'a> SpriteAnimationSequence<'a>{
     }
 }
 
+#[derive(Component, Eq, PartialEq, Copy, Clone, Debug, Hash)]
+pub struct MakeWay;
 
 //whatever has this component is intended to move (instead of wants to move try using only this one)
 #[derive(Component, Eq, PartialEq, Copy, Clone, Debug, Hash)]

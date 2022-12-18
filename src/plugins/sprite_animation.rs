@@ -1,4 +1,4 @@
-use std::ops::RemAssign;
+use std::ops::{Deref, RemAssign};
 use std::thread::current;
 use bevy::app::Plugin;
 use bevy::prelude::*;
@@ -92,12 +92,33 @@ impl Default for SpriteAnimationPlayer {
 			speed: 1.0,
 			elapsed: 0.0,
 			current_index: None,//todo first in array
-			sequence_name: Name::new("DiamondShining")//Default::default(),//it works that way that system scans for all players, and works only on the ones with Some as sequence
+			sequence_name: Default::default(),//it works that way that system scans for all players, and works only on the ones with Some as sequence
+		}
+	}
+}
+
+impl Clone for SpriteAnimationPlayer {
+	fn clone(&self) -> Self {
+		let str = self.sequence_name.deref().to_owned();
+		SpriteAnimationPlayer{
+			paused: self.paused,
+			repeat: self.repeat,
+			speed: self.speed,
+			elapsed: self.elapsed,
+			current_index: self.current_index,
+			sequence_name: Name::new(str),
 		}
 	}
 }
 
 impl SpriteAnimationPlayer {
+	pub fn new(sequence_name: Name) -> Self{
+		SpriteAnimationPlayer{
+			sequence_name,
+			..Default::default()
+		}
+	}
+
 	/// Start playing an animation, resetting state of the player
 	pub fn start(&mut self, sequence_name: Name) -> &mut Self {
 		*self = Self {

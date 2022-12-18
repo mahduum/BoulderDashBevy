@@ -46,18 +46,18 @@ impl RockfordMotionState {
 
     pub fn update_motion_state_option(&self, delta: &Delta) -> Option<RockfordMotionState> {
         if delta.x == 0 && delta.y == 0 {
-            match self {
-                RockfordMotionState::Idle { last_direction } => return None, //if last state was idle do nothing
+            return match self {
+                RockfordMotionState::Idle { last_direction } => None, //if last state was idle do nothing
                 _ => {
-                    return Some(RockfordMotionState::Idle {
+                    Some(RockfordMotionState::Idle {
                         last_direction: Box::new(self.clone()),
-                    }); //if last state was not idle but delta was 0 make it idle and remember last direction
+                    }) //if last state was not idle but delta was 0 make it idle and remember last direction
                 }
             }
         } else if delta.x != 0 {
-            match delta.x {
-                1 => return Some(RockfordMotionState::MovingRight),
-                _ => return Some(RockfordMotionState::MovingLeft),
+            return match delta.x {
+                1 => Some(RockfordMotionState::MovingRight),
+                _ => Some(RockfordMotionState::MovingLeft),
             }
         } else if let RockfordMotionState::Idle { last_direction } = self {
             //retrieve last direction to position sprite as it was before when moving vertically, steal it from the box
@@ -149,6 +149,8 @@ fn keyboard_input(
         if let Err(error) = motion_state.overwrite_replace(new_state) {
             eprintln!("Overwrite state error: {}", error);
         }
+        //todo as long as the same input is being received make a delay to first clean up/dig the dirt tile and only after that move on its place
+        //first check if the tunnel can be dug, then when it is dug out, allow to move on its position
         println!("Set state successful!");
     }
 

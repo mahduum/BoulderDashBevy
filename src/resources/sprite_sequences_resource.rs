@@ -19,6 +19,14 @@ impl FromWorld for SpriteAnimationSequences{
 					vec![0, 1, 2, 3, 4, 5, 6]
 				),
 				(
+					Name::new("RockfordWalkingLeft"),
+					vec![10, 11, 12, 13, 14, 15, 16]
+				),
+				(
+					Name::new("RockfordWalkingRight"),
+					vec![20, 21, 22, 23, 24, 25, 26]
+				),
+				(
 					Name::new("DiamondShining"),
 					vec![40, 50, 60, 70, 41, 51, 61, 71]
 				)

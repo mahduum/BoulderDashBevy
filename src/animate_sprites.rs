@@ -8,6 +8,7 @@ use crate::plugins::player_input::RockfordMotionState;
 use crate::prelude::*;
 use crate::tile_map::TileType;
 use crate::{components::SpriteIndexRuntime, tile_map::SpriteIndex, DataTransfer};
+use crate::plugins::sprite_animation::SpriteAnimationPlayer;
 
 pub struct AnimateSpritesPlugin;
 
@@ -128,46 +129,22 @@ fn animate_sprites(
 
 //todo figure out
 fn relocate_components(
-    mut query: Query<(Entity, &DataTransfer, &AnimatableGeneric, &mut TileType)>,
+    mut query: Query<(Entity, &DataTransfer, &SpriteAnimationPlayer, &mut TileType)>,
     mut commands: Commands,
 ) {
     //what to add after it was removed (todo later do this on layers)
     for (entity, mut data, mut anim, mut tile) in query.iter_mut() {
         //clone animatable generic with its data:
-        *tile = TileType::Tunnel;
-        commands.entity(data.to).insert(anim.clone());
+        commands.entity(data.to).insert(anim.clone());//todo can be cloned? or store its data in resources somewhere???
         commands
             .entity(entity)
             .remove::<DataTransfer>()
-            .remove::<AnimatableGeneric>();
+            .remove::<SpriteAnimationPlayer>();
     }
 }
 
 #[derive(Component)]
 struct PauseAnimation(bool);
-
-// fn animate_sprite(
-//     time: Res<Time>,
-//     texture_atlases: Res<Assets<TextureAtlas>>,
-//     mut query: Query<(
-//         &mut AnimationTimer,
-//         &mut TextureAtlasSprite,
-//         &Handle<TextureAtlas>,
-//         &mut Visibility,
-//     )>,
-// ) {
-//     for (mut timer, mut sprite, texture_atlas_handle, mut visibility) in query.iter_mut() {
-//         timer.tick(time.delta());
-//         if timer.just_finished() {
-//             //let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
-//             //texture_atlas.textures.len();
-//             sprite.index = get_index_rockford_standing(sprite.index, timer);
-//             if visibility.is_visible == false{
-//                 visibility.is_visible = true;
-//             }
-//         }
-//     }
-// }
 
 #[allow(dead_code)]
 pub fn get_index_rockford_standing(current_index: u32, mut timer: Mut<AnimationTimer>) -> u32 {
