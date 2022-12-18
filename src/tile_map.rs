@@ -15,7 +15,7 @@ use crate::prelude::*;
 
 use crate::{
     tile_sheet::{spawn_sprite_from_tile_sheet, TileSheet},
-    TILE_SIZE, animate_sprites
+    TILE_SIZE, relocate_components
 };
 use crate::plugins::sprite_animation;
 

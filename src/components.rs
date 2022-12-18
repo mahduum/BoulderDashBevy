@@ -6,8 +6,6 @@ use std::{marker::PhantomData, time::Duration};
 use crate::plugins::player_input::*;
 use crate::prelude::*;
 
-use crate::animate_sprites::AnimationTimer;
-
 pub struct PlayerPlugin;
 
 #[derive(Component)]
@@ -37,40 +35,6 @@ impl DataTransfer {
     // for transferring the player with its data onto another tile
     pub fn move_to(to: Entity) -> Self {
         DataTransfer { to }
-    }
-}
-pub trait SpriteIndexRuntime: DynClone {
-    fn get_sprite_index(&mut self, current_index: u32, current_state: &RockfordMotionState) -> u32;
-}
-
-#[derive(Component, Clone)]
-pub struct RockfordAnimation {
-    //todo if it carries the timer with it self then it is ecs inefficient, it should be accessed as resource, and use it as argument, but then also the care must be taken for the signature
-    //todo this should be a component in order to access timer ecs way, it cannot have a direct reference, this is for testing only, but maybe it could be simply made a component?
-    pub timer: AnimationTimer, //todo this particular animation can also have its own timer outside in resources which it could access and modify but in a less readable way,
-                               // it would be a separate Query<(&mut RockfordAnimation, &mut RockfordAnimationTimer), (With<Player>)>
-}
-
-/// Internal custom index getters for animations of Rockford. Can be rendered more complex and reactive to Rockford's stated by adding more functions, or accepting more arguments like state.
-impl<'a> RockfordAnimation {
-    pub fn get_index_rockford_standing(&'a mut self, current_index: u32) -> u32 {
-        let next_index = (current_index + 1) % 7;
-        if next_index == 0 && self.timer.duration().as_secs_f32() < 1.0 {
-            self.timer.set_duration(Duration::from_secs(3));
-        } else if self.timer.duration().as_secs_f32() >= 1.0 {
-            self.timer.set_duration(Duration::from_millis(150))
-        }
-
-        next_index
-    }
-}
-
-//'a : 'b means "a outlives b"
-/// Implementation of runtime animation index that allows using internal Rockford animation functions in a generic context and in a way that details are hidden.
-impl SpriteIndexRuntime for RockfordAnimation {
-    //TODO sprite index runtime for rockford can have generic T for state
-    fn get_sprite_index(&mut self, current_index: u32, current_state: &RockfordMotionState) -> u32 {
-        self.get_index_rockford_standing(current_index)
     }
 }
 

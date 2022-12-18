@@ -3,8 +3,7 @@ use bevy::prelude::{Entity, Query};// ParallelSystemDescriptorCoercion};
 use bevy::time::{Timer, TimerMode};
 use bevy_ecs_tilemap::tiles::{TilePos, TileStorage};
 use bevy::prelude::IntoSystemDescriptor;
-use crate::animate_sprites::{Animatable, AnimatableGeneric};
-use crate::{animate_sprites, Commands, CoreStage, MyLabel, MovementStage, Without};
+use crate::{relocate_components, Commands, CoreStage, MyLabel, MovementStage, Without};
 use crate::prelude::*;
 use crate::tile_map::*;
 
@@ -52,17 +51,6 @@ fn movement(
 			let storage = tile_storage.single();//storage retrieves entity by their position (which was calculated using delta)
 			if let Some(move_to_entity) = storage.get(&info.2)//&info.2 is the tile to move to
 			{
-				//todo how to split animation update from movement??? sieve through components with this type of animation and update them depending on whether they still have the owning animation component
-				//todo if we have many entities of the same type (enemy) how we know whose animation timer and indexes are to be passed?
-				//example: the owning component (enemy) was transferred to a different entity, so then we find some anim component: how do we know to which entity we pass over its data?
-				//we must create transfer messages on movement complete, tuples (from entity, to entity) and then arrange for the passing of the infos in a separate system???
-				//add component DataTransfer from entity to entity and each transferable system that has need of transferring its data will be able to do it on its own
-				//we move from a to b, we
-				//add system for clearing passage, change entity type wherever rockford was
-
-				//check if the tile is tunnel already, todo: need a more complex logic for moving obstacles (if there is something behind etc., or should it be collected)
-				//component collectable, movable, etc. or functions (can be moved, can be collected etc.) or should it be ran in a separate systems?
-				//todo temporary just for fun, refactor so it can have single component only, or better yet run digging system after moving system:
 				if let Ok(tile_type) = move_to_query.get(move_to_entity){
 					match tile_type{
 						TileType::Dirt => {commands.entity(move_to_entity).insert(MakeWay{});},
@@ -70,7 +58,6 @@ fn movement(
 							commands.entity(info.0).remove::<Player>().remove::<Delta>().insert(DataTransfer::move_to(move_to_entity));
 							commands.entity(move_to_entity).insert(Player::new());
 									//todo transfer sprite animation player
-									//.insert(animate_sprites::AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)));//todo remove adding this component???
 						},
 						_ => {}
 					}

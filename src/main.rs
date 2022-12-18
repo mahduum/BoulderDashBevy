@@ -25,14 +25,14 @@ mod prelude
     pub const TILE_SIZE_SCALED: f32 = 16.0 * 0.01;
 }
 
-use animate_sprites::AnimateSpritesPlugin;
+use relocate_components::RelocateComponentsPlugin;
 use bevy::{prelude::*, window::PresentMode};
 use bevy::render::camera::ScalingMode;
 use bevy::utils::define_label;
 //use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 
 mod components;
-mod animate_sprites;
+mod relocate_components;
 mod debug;
 mod tile_sheet;
 mod tile_map;
@@ -105,7 +105,7 @@ fn main() {
         .add_plugin(TileMapPlugin)
         .add_plugin(TilemapPlugin)
             //.add_system(toggle_inspector)//todo not available in bevy 0.9
-        .add_plugin(AnimateSpritesPlugin)
+        .add_plugin(RelocateComponentsPlugin)
         .add_plugin(PlayerInputPlugin)
         .add_plugin(MovementPlugin)
         .add_plugin(DigTunnelPlugin)
@@ -168,11 +168,3 @@ fn input_line(buffer: &mut [u16]){
         *word = 0;//set every value that is bigger than text's length to 0 (in case buffer space in bigger than text's)
     }
 }
-
-// fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-//     commands.spawn_bundle(Camera2dBundle::default());
-//     commands.spawn_bundle(SpriteBundle {
-//         texture: asset_server.load("branding/icon.png"),
-//         ..default()
-//     });
-// }
