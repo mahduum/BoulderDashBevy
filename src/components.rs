@@ -179,6 +179,9 @@ impl From<Vec2> for Delta {
     }
 }
 
+#[derive(Component, Deref, DerefMut, Eq, PartialEq, Copy, Clone, Debug, Hash)]
+pub struct PreviousDelta(pub Delta);
+
 #[derive(Component)]
 pub struct WantsToMove {
     entity: Entity,

@@ -9,6 +9,7 @@ pub struct SpriteAnimationSequences
 }
 
 impl FromWorld for SpriteAnimationSequences{
+	//this is called on init resource:
 	fn from_world(world: &mut World) -> Self {
 		//with asset loader it can be set elsewhere
 		//let mut x = world.get_resource_mut::<MyOtherResource>().unwrap();
@@ -19,11 +20,11 @@ impl FromWorld for SpriteAnimationSequences{
 					vec![0, 1, 2, 3, 4, 5, 6]
 				),
 				(
-					Name::new("RockfordWalkingLeft"),
+					Name::new("RockfordMovingLeft"),
 					vec![10, 11, 12, 13, 14, 15, 16]
 				),
 				(
-					Name::new("RockfordWalkingRight"),
+					Name::new("RockfordMovingRight"),
 					vec![20, 21, 22, 23, 24, 25, 26]
 				),
 				(

@@ -35,7 +35,9 @@ fn movement(
 
 	//make query for player and another for tile storage
 
+	//todo refactor for a nicer look, now it will work only for player
 	let mut destination_info: Option<(Entity, TilePos, TilePos)> = None;
+	let mut previous_delta: Option<PreviousDelta> = None;
 	delta_query.iter_mut().for_each(|(e, delta, pos, player)|{
 		if let Some(mut found_player) = player {
 			//if tile position is the player position then change its display only or its enum type
@@ -43,6 +45,7 @@ fn movement(
 			//(d, _) (d, p)
 			//(d, p) adds another delta when coming back, because the previous wasn't removed, that is why there was two entities
 			destination_info =  Some((e, *pos, TilePos::new((pos.x as i32 + delta.x) as u32, (pos.y as i32 + delta.y) as u32)));
+			previous_delta = Some(PreviousDelta(*delta));
 		}
 	});
 
@@ -55,9 +58,17 @@ fn movement(
 					match tile_type{
 						TileType::Dirt => {commands.entity(move_to_entity).insert(MakeWay{});},
 						TileType::Tunnel => {
-							commands.entity(info.0).remove::<Player>().remove::<Delta>().insert(DataTransfer::move_to(move_to_entity));
+							if let Some(prev_delta) = previous_delta{
+								commands.entity(move_to_entity).insert(prev_delta);
+							}
+
+							if info.0 == move_to_entity{
+								return;
+							}
+
+							//todo maybe removing player and adding should occur in data transfer?
 							commands.entity(move_to_entity).insert(Player::new());
-									//todo transfer sprite animation player
+							commands.entity(info.0).remove::<Player>().remove::<Delta>().remove::<PreviousDelta>().insert(DataTransfer::move_to(move_to_entity));
 						},
 						_ => {}
 					}

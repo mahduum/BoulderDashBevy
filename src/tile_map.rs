@@ -17,6 +17,7 @@ use crate::{
     tile_sheet::{spawn_sprite_from_tile_sheet, TileSheet},
     TILE_SIZE, relocate_components
 };
+use crate::plugins::animation_state::RockfordAnimationState;
 use crate::plugins::sprite_animation;
 
 mod test_module;
@@ -179,7 +180,8 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     .insert(Name::new("Player"))
                     .insert(Player::new())
                     .insert(TileType::Tunnel)//todo is temporary
-                    .insert(sprite_animation::SpriteAnimationPlayer::new(Name::new("RockfordStanding")));
+                    .insert(sprite_animation::SpriteAnimationPlayer::new(Name::new("RockfordStanding")))
+                    .insert(RockfordAnimationState::Idle(Delta::zero()));
             }
             else if index == TileType::Diamond {
                 commands.entity(tile_entity)

@@ -25,6 +25,7 @@ mod prelude
     pub const TILE_SIZE_SCALED: f32 = 16.0 * 0.01;
 }
 
+use std::time::Duration;
 use relocate_components::RelocateComponentsPlugin;
 use bevy::{prelude::*, window::PresentMode};
 use bevy::render::camera::ScalingMode;
@@ -48,9 +49,11 @@ use bevy_ecs_tilemap::TilemapPlugin;
 use crate::camera_follow::CameraFollowPlugin;
 use prelude::*;
 use crate::plugins::dig_tunnel::DigTunnelPlugin;
-use crate::plugins::player_input::RockfordMotionState;
+use crate::plugins::player_input::{InputDelayTimer};
 use crate::plugins::sprite_animation::SpriteAnimationPlugin;
 use crate::resources::sprite_sequences_resource::SpriteAnimationSequences;
+use crate::plugins::animation_state::AnimationStatePlugin;
+use crate::TimerMode::Repeating;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[derive(SystemLabel)]
@@ -97,8 +100,6 @@ fn main() {
         // })
         //.add_plugin(WorldInspectorPlugin::new())
         .add_startup_system(spawn_camera)
-        //.add_startup_system(setup)
-        .add_state(RockfordMotionState::Idle {last_direction: Box::new(RockfordMotionState::MovingLeft)})
         .add_plugin(CameraFollowPlugin)
         .add_plugin(DebugPlugin)
         .add_plugin(TileSheetPlugin)
@@ -110,7 +111,9 @@ fn main() {
         .add_plugin(MovementPlugin)
         .add_plugin(DigTunnelPlugin)
         .add_plugin(SpriteAnimationPlugin)
+        .add_plugin(AnimationStatePlugin)
         .init_resource::<SpriteAnimationSequences>()
+        .insert_resource(InputDelayTimer(Timer::from_seconds(0.2, Repeating)))
         .add_stage_before(CoreStage::Update, MovementStage::Moving, SystemStage::parallel())
         .add_stage_after(CoreStage::Update, MovementStage::Digging, SystemStage::parallel())
         .run();
