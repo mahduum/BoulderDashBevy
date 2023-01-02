@@ -42,6 +42,10 @@ fn fragment(
 
     let intensity = smoothstep(dist_change, -dist_change, distance);//aa_step(0.5, distance);//smoothstep(0.5, 1.0, fract(position.y * 0.0001 * lines));
 
+    // add 0.5 before fract so if dist=4 and line_distance=1 we would have 0, but in that way we will have 0.5 - we shift to the middle
+    // next if we had 4.4 + 0.5 => 0.9 - 0.5 = 0.4, and if 4.3 + 0.5 => 0.8 - 0.5 = 0.3 - we are climbing but past the middle point 4.6, 4.7 => 0.4, 0.3 we are descending
+    // that way where we have always 0 where the line should be, but it will have smooth step from left and right.
+    // we multiply it back by line_distance to have the proper scaling and not the values clamped between 0 and 1.
     let majorLineDistance = abs(fract(distance / line_distance + 0.5) - 0.5) * line_distance;
     let majorLines = smoothstep(line_thickness - dist_change * 5.0, line_thickness + dist_change * 5.0, majorLineDistance);
 
@@ -56,16 +60,3 @@ fn fragment(
 
     return new_output_color;
 }
-
-//compValue is where we want to place the anti aliased line, for 0.5 it will be in the middle (0,1)
-//fn aaStep(in float compValue, in float gradient){//gradient is our value of a line between 0 and 1 for frac uv.y multiplied by lines
-//  float halfChange = fwidth(gradient) * 0.5f;//change will be constant, because it is vertical, it will somehow depend on smoothstep
-//  //base the range of the inverse lerp on the change over one pixel
-//  float lowerEdge = compValue - halfChange;//values of the lower edge and respectively upper edge
-//  float upperEdge = compValue + halfChange;
-//  //do the inverse interpolation
-//  return( clamp((gradient - lowerEdge) / (upperEdge - lowerEdge), 0.0f, 1.0f) );//the value of the gradient at current frac(uv.y * lines)
-// for example lower edge 0.3, upper edge 0.7 if gradient is 0.4, then 0.1/0.4, if gradient is 0.5 then 0.2/0.4 (1/2), if 0.7 then 0.4/0.4 (1)
-//}
-
-//draw on the line but line is shifted
