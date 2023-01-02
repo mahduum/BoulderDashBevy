@@ -25,9 +25,9 @@ fn fragment(
     // Get screen position with coordinates from 0 to 1
     let uv = coords_to_viewport_uv(position.xy, view.viewport);
     let offset_strength = 0.001;
-    let lines = 10.0;
+    let lines = 176.0;
     let line_distance = 1.0;
-    let line_thickness = 0.3;
+    let line_thickness = 0.01;
 
     // Sample each color channel with an arbitrary shift
     var output_color = vec4<f32>(
@@ -38,6 +38,7 @@ fn fragment(
         );
 
     let distance = fract(position.y * 0.01 * lines);
+    let distance = fract(uv.y * lines);
     let dist_change = fwidth(distance);
 
     let intensity = smoothstep(dist_change, -dist_change, distance);//aa_step(0.5, distance);//smoothstep(0.5, 1.0, fract(position.y * 0.0001 * lines));
