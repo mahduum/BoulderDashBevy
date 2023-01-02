@@ -90,7 +90,7 @@ fn create_simple_map(mut commands: Commands, sheet: Res<TileSheet>) {
                     &mut commands,
                     &sheet,
                     match char {
-                        '#' => 32,
+                        '#' => 0,
                         '.' => 33,
                         '_' => 36,
                         _ => 36,
@@ -140,6 +140,7 @@ fn get_texture_atlas_indices() -> HashMap<(u32,u32), TileType>{
 fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
     let texture_handle: Handle<Image> = asset_server.load("textures/chars/boulder_dash.png");//we already have tiles... use texture atlas instead of image?
+    let texture_handle_new: Handle<Image> = asset_server.load("textures/chars/sprites_boulder_dash.png");//we already have tiles... use texture atlas instead of image?
 
     let tilemap_size = TilemapSize { x: 18, y: 8 };
     let mut tile_storage = TileStorage::empty(tilemap_size);
@@ -207,7 +208,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
         }
     }
 
-    let tile_size = TilemapTileSize { x: 16.0, y: 16.0 };
+    let tile_size = TilemapTileSize { x: TILE_SIZE, y: TILE_SIZE };
 
     //let tile_map_texture = TilemapTexture(texture_handle);
 
@@ -220,18 +221,18 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     
     commands
             .entity(tilemap_entity)
-            .insert_bundle(TilemapBundle {
-                grid_size: TilemapGridSize { x: 16.0, y: 16.0 },
+            .insert(TilemapBundle {
+                grid_size: TilemapGridSize { x: TILE_SIZE, y: TILE_SIZE },
                 size: tilemap_size,
                 storage: tile_storage,
-                texture: TilemapTexture::Single(texture_handle),
+                texture: TilemapTexture::Single(texture_handle_new),
                 tile_size,
                 transform: //get_centered_transform_2d(&tilemap_size, &tile_size, 100.0),//.with_scale(Vec3 { x: 0.1, y: 0.1, z: 0.1 }),
                 Transform::from_xyz(
                     0.0,
                     0.0,
                     899.0,
-                ).with_scale(Vec3 { x: 0.01, y: 0.01, z: 1.0 }),//get_centered_transform_2d(&tilemap_size, &tile_size, 0.0),*/
+                ).with_scale(Vec3 { x: TILE_SCALE, y: TILE_SCALE, z: 1.0 }),//get_centered_transform_2d(&tilemap_size, &tile_size, 0.0),*/
             
                 ..Default::default()
             });

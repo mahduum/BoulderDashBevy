@@ -18,18 +18,21 @@ mod prelude
 	pub const DISPLAY_WIDTH: i32 = SCREEN_WIDTH / 2;
 	pub const DISPLAY_HEIGHT: i32 = SCREEN_HEIGHT / 2;
     pub const CLEAR: Color = Color::rgb(0.3, 0.3, 0.3);
-    pub const HEIGHT: f32 = 900.0;
+    pub const HEIGHT: f32 = 1024.0;
     pub const RESOLUTION: f32 = 16.0 / 9.0;
-    pub const TILE_SIZE: f32 = 16.0;
-    pub const TILE_SCALE: f32 = 0.01;
-    pub const TILE_SIZE_SCALED: f32 = 16.0 * 0.01;
+    pub const TILE_SIZE: f32 = 32.0;
+    pub const TILE_SCALE: f32 = 0.005;
+    pub const TILE_SIZE_SCALED: f32 = 32.0 * 0.005;
 }
 
 use std::time::Duration;
 use relocate_components::RelocateComponentsPlugin;
 use bevy::{prelude::*, window::PresentMode};
 use bevy::render::camera::ScalingMode;
+use bevy::sprite::Material2dPlugin;
 use bevy::utils::define_label;
+
+
 //use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 
 mod components;
@@ -80,7 +83,7 @@ enum MovementStage{
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins
-                .set(ImagePlugin::default_nearest())
+                .set(ImagePlugin::default_linear())
                 .set(WindowPlugin {
                     window: WindowDescriptor {
                         width: HEIGHT * RESOLUTION,
@@ -99,7 +102,9 @@ fn main() {
         //     ..Default::default()
         // })
         //.add_plugin(WorldInspectorPlugin::new())
-        .add_startup_system(spawn_camera)
+        //.add_startup_system(spawn_camera)//move to system post process
+        .add_plugin(Material2dPlugin::<plugins::post_process::EightBitPostProcessingMaterial>::default())
+        .add_plugin(plugins::post_process::PostProcessPlugin)
         .add_plugin(CameraFollowPlugin)
         .add_plugin(DebugPlugin)
         .add_plugin(TileSheetPlugin)
@@ -171,3 +176,4 @@ fn input_line(buffer: &mut [u16]){
         *word = 0;//set every value that is bigger than text's length to 0 (in case buffer space in bigger than text's)
     }
 }
+
