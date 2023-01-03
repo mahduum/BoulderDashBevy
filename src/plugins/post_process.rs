@@ -126,6 +126,6 @@ pub(crate) struct EightBitPostProcessingMaterial {
 
 impl Material2d for EightBitPostProcessingMaterial {
 	fn fragment_shader() -> ShaderRef {
-		"shaders/eight_bit_lines.wgsl".into()
+		"shaders/crt.wgsl".into()
 	}
 }
