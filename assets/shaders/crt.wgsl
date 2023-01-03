@@ -23,7 +23,7 @@ fn fragment(
     #import bevy_sprite::mesh2d_vertex_output
 ) -> @location(0) vec4<f32> {
 
-    let _Density = 14;//todo with 15 there are big gaps in horizontal lines
+    let _Density = 49;//todo with 15 there are big gaps in horizontal lines
     let _VertsColor = 0.5;
     let _VertsColor2 = 0.2;
     let _ScansColor = vec4(0.2, 0.4, 0.6, 1.0);
@@ -49,7 +49,7 @@ fn fragment(
     
     //Vertical lines
     let ps = position.xy * view.viewport.zw / position.w;//_ScreenParams.xy - camera target's width and height, scr_pos is in 0,0 to 1,1, corrected by perspective divide w for the output so it has "perspective look" in 2d screen space
-    let psx: i32 = bitcast<i32>(ps.x);//todo uneven grid, maybe bitcasting not working?
+    let psx: i32 = i32(ps.x);
     let pp = psx % _Density;//is always within _Density
     var outcolor = vec4<f32>(0.0, 0.0, 0.0, 1.0);
     let muls = vec4<f32>(0.0, 0.0, 0.0, 1.0);
@@ -60,8 +60,8 @@ fn fragment(
     }
     else if (pp < (2*_Density)/3){//then if it's less then 2/3 of the _Density modify channels r and b
         outcolor.g = color.g;
-        outcolor.r = color.r*(_VertsColor + 0.3);
-        outcolor.b = color.b*(_VertsColor2 + 0.3);
+        outcolor.r = color.r*_VertsColor;
+        outcolor.b = color.b*_VertsColor2;
     }
     else{//for the last third part of the _Density modify channels r and g
         outcolor.b = color.b;
@@ -71,7 +71,7 @@ fn fragment(
 
     //Horizontal lines
     //Modify all colors but only on the exact _Density step (in pixels?)
-    let psy: i32 = bitcast<i32>(ps.y);
+    let psy: i32 = i32(ps.y);
     if (psy % _Density == 0) {
         outcolor *= vec4<f32>(_ScansColor.r, _ScansColor.g, _ScansColor.b, 1.0);
     }

@@ -21,8 +21,8 @@ mod prelude
     pub const HEIGHT: f32 = 1024.0;
     pub const RESOLUTION: f32 = 16.0 / 9.0;
     pub const TILE_SIZE: f32 = 32.0;
-    pub const TILE_SCALE: f32 = 0.005;
-    pub const TILE_SIZE_SCALED: f32 = 32.0 * 0.005;
+    pub const TILE_SCALE: f32 = 0.0025;
+    pub const TILE_SIZE_SCALED: f32 = 32.0 * 0.0025;
 }
 
 use std::time::Duration;
