@@ -21,8 +21,8 @@ mod prelude
     pub const HEIGHT: f32 = 1024.0;
     pub const RESOLUTION: f32 = 16.0 / 9.0;
     pub const TILE_SIZE: f32 = 32.0;
-    pub const TILE_SCALE: f32 = 0.0025;
-    pub const TILE_SIZE_SCALED: f32 = 32.0 * 0.0025;
+    pub const TILE_SCALE: f32 = 0.005;
+    pub const TILE_SIZE_SCALED: f32 = 32.0 * 0.005;//final scale is 0.0025
 }
 
 use std::time::Duration;
@@ -83,7 +83,7 @@ enum MovementStage{
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins
-                .set(ImagePlugin::default_linear())
+                .set(ImagePlugin::default_nearest())
                 .set(WindowPlugin {
                     window: WindowDescriptor {
                         width: HEIGHT * RESOLUTION,

@@ -25,9 +25,9 @@ fn fragment(
     // Get screen position with coordinates from 0 to 1
     let uv = coords_to_viewport_uv(position.xy, view.viewport);
     let offset_strength = 0.001;
-    let lines = 176.0;
+    let lines = 178.0;//178
     let line_distance = 1.0;
-    let line_thickness = 0.01;
+    let line_thickness = 0.02;//default 0.01
 
     // Sample each color channel with an arbitrary shift
     var output_color = vec4<f32>(
@@ -39,7 +39,7 @@ fn fragment(
 
     let distance = fract(position.y * 0.01 * lines);
     let distance = fract(uv.y * lines);
-    let dist_change = fwidth(distance);
+    let dist_change = dpdy(distance);
 
     let intensity = smoothstep(dist_change, -dist_change, distance);//aa_step(0.5, distance);//smoothstep(0.5, 1.0, fract(position.y * 0.0001 * lines));
 
@@ -48,14 +48,16 @@ fn fragment(
     // that way where we have always 0 where the line should be, but it will have smooth step from left and right.
     // we multiply it back by line_distance to have the proper scaling and not the values clamped between 0 and 1.
     let majorLineDistance = abs(fract(distance / line_distance + 0.5) - 0.5) * line_distance;
-    let majorLines = smoothstep(line_thickness - dist_change * 5.0, line_thickness + dist_change * 5.0, majorLineDistance);
+    let majorLines = smoothstep(line_thickness - dist_change * 4.0, line_thickness + dist_change * 4.0/*for bigger gradient*/, majorLineDistance);
 
-    let intensity = majorLines;
-
+    //saturate and raise to power to decrease more faint values:
+    let power = 1.0;
+    let intensity = saturate(pow(majorLines, power));//todo take some power
+    let line_color = vec4<f32>(0.8, 0.3, 0.6, 1.0) * (intensity);
     var new_output_color = vec4<f32>(
-        textureSample(texture, our_sampler, uv).x * intensity,
-        textureSample(texture, our_sampler, uv).y * intensity,
-        textureSample(texture, our_sampler, uv).z * intensity,
+        textureSample(texture, our_sampler, uv).x * intensity * line_color.x,//todo add color
+        textureSample(texture, our_sampler, uv).y * intensity * line_color.y,
+        textureSample(texture, our_sampler, uv).z * intensity * line_color.z,
         1.0
     );
 

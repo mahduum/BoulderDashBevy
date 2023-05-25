@@ -7,6 +7,9 @@ var texture: texture_2d<f32>;
 @group(1) @binding(1)
 var our_sampler: sampler;
 
+//@group(1) @binding(2)
+//var tile_texture: texture_2d<f32>;
+
 fn aa_step(compValue: f32, gradient: f32) -> f32
 {
     let halfChange = fwidth(gradient) * 0.5f;
@@ -32,6 +35,11 @@ fn fragment(
 
     // Get screen position with coordinates from 0 to 1
     let uv = coords_to_viewport_uv(position.xy, view.viewport);
+    let screen_height = i32(view.viewport.w);
+    let lines = 30;
+    //how many pixels: every pixel is 2 pixels and is divided by scale
+    //how many pixels screen has, what is the size in pixels of the tile, tile size is 32 pixels
+    let pixel_width = 7;//i32(2.0/*fake pixel true size*/ * 0.005);
     ///Curvature
     ///You only need a distortion texture, that you can ignore at first. The main texture is the camera output. This is an Image Effect / Post Processing shader
     // half2 n = tex2D(_DisplacementTex, i.uv);
@@ -42,7 +50,6 @@ fn fragment(
 
     // //Distort image on y axis
     // i.uv.y += _Distort;
-
     //sample the main texture
     let color =
         textureSample(texture, our_sampler, uv.xy);
@@ -69,10 +76,20 @@ fn fragment(
         outcolor.g = color.g*_VertsColor2; 
     }
 
+    //how many pixels viewport has, then how high is the tile, and how high is 1/16 of the tile: this will be the pixel size.
+    //given the tile is 32 pixels, and one pixel is 2, then vie
+    let half_viewport = i32(view.viewport.w/2.0);//todo NOTE: viewport scale is different than window scale
+    let dim: vec2<i32> = textureDimensions(texture, 0);//viewport height == textureDimensions()
+    let scale = view.viewport.w / 1024.0;
+    let pixel_size = i32(8.0/scale);
     //Horizontal lines
     //Modify all colors but only on the exact _Density step (in pixels?)
+    //take the viewport height, get uv screen coordinates, divide and set line on equal % frequency
     let psy: i32 = i32(ps.y);
-    if (psy % _Density == 0) {
+    //if (psy % _Density == 0) {
+    //if (uv.y % _Density == 0) {
+    //if (i32(position.y) % pixel_size == 0) {
+    if ((i32(position.y) * 1000) % 64 == 0) {
         outcolor *= vec4<f32>(_ScansColor.r, _ScansColor.g, _ScansColor.b, 1.0);
     }
 

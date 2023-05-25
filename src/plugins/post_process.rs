@@ -1,3 +1,4 @@
+use std::borrow::Borrow;
 use bevy::prelude::*;
 use crate::prelude::*;
 use bevy::sprite::{Material2d, Material2dPlugin, MaterialMesh2dBundle};
@@ -23,6 +24,7 @@ fn post_process_setup(
 	mut post_processing_materials: ResMut<Assets<EightBitPostProcessingMaterial>>,
 	mut materials: ResMut<Assets<StandardMaterial>>,
 	mut images: ResMut<Assets<Image>>,
+	mut query: Query<&TilemapTexture>,
 ) {
 	let window = windows.primary_mut();
 	let size = Extent3d {
@@ -31,6 +33,7 @@ fn post_process_setup(
 		..default()
 	};
 
+	println!("Window physical height: {}, float width: {}, scale factor: {}", size.height, window.height(), window.scale_factor());
 	// This is the texture that will be rendered to.
 	let mut image = Image {
 		texture_descriptor: TextureDescriptor {
@@ -106,6 +109,10 @@ fn post_process_setup(
 				priority: 1,
 				..default()
 			},
+			projection: OrthographicProjection{
+				scaling_mode: ScalingMode::FixedVertical(RESOLUTION),
+				..Default::default()
+			},
 			..Camera2dBundle::default()
 		},
 		post_processing_pass_layer,
@@ -126,6 +133,6 @@ pub(crate) struct EightBitPostProcessingMaterial {
 
 impl Material2d for EightBitPostProcessingMaterial {
 	fn fragment_shader() -> ShaderRef {
-		"shaders/crt.wgsl".into()
+		"shaders/eight_bit_lines.wgsl".into()
 	}
 }
