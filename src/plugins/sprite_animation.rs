@@ -4,7 +4,7 @@ use bevy::app::Plugin;
 use bevy::prelude::*;
 use bevy::render::render_resource::encase::private::RuntimeSizedArray;
 use bevy_ecs_tilemap::tiles::TileTextureIndex;
-use crate::{App, CoreStage, SpriteAnimationSequence, SpriteAnimationSequences};
+use crate::{App, SpriteAnimationSequence, SpriteAnimationSequences};
 
 #[derive(Default)]
 pub struct SpriteAnimationPlugin;
@@ -12,7 +12,7 @@ pub struct SpriteAnimationPlugin;
 
 impl Plugin for SpriteAnimationPlugin{
 	fn build(&self, app: &mut App) {
-		app.add_system_to_stage(CoreStage::PostUpdate, sprite_animation_player);
+		app.add_system(sprite_animation_player.in_base_set(CoreSet::PostUpdate));
 	}
 }
 
@@ -194,7 +194,7 @@ impl SpriteAnimationPlayer {
 // 		   .register_asset_reflect::<AnimationClip>()
 // 		   .register_type::<SpriteAnimationPlayer>()
 // 		   .add_system_to_stage(
-// 			   CoreStage::PostUpdate,
+// 			   CoreSet::PostUpdate,
 // 			   animation_player.before(TransformSystem::TransformPropagate),
 // 		   );
 // 	}

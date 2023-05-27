@@ -36,7 +36,7 @@ pub struct TileMapPlugin;
 
 impl Plugin for TileMapPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(startup.label("player_spawn"));
+        app.add_startup_system(startup);//todo was labeled on 0.9 but label was not used
         //app.add_startup_system(create_simple_map);
         //app.add_startup_system_to_stage(StartupStage::PostStartup, create_simple_map);
     }
@@ -109,7 +109,7 @@ fn create_simple_map(mut commands: Commands, sheet: Res<TileSheet>) {
     }
 
     commands
-        .spawn_bundle(SpatialBundle::default())
+        .spawn(SpatialBundle::default())
         .push_children(&tiles);
 }
 

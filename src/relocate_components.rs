@@ -15,7 +15,7 @@ pub struct RelocateComponentsPlugin;
 
 impl Plugin for RelocateComponentsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_to_stage(CoreStage::PreUpdate, relocate_components.label("relocate"));
+        app.add_system(relocate_components.in_base_set(CoreSet::PreUpdate));
     }
 }
 

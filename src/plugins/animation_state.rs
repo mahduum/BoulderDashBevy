@@ -8,7 +8,7 @@ pub struct AnimationStatePlugin;
 
 impl Plugin for AnimationStatePlugin{
 	fn build(&self, app: &mut App) {
-		app.add_system_to_stage(CoreStage::Update, update_animation_state);
+		app.add_system(update_animation_state.in_base_set(CoreSet::Update));
 	}
 }
 

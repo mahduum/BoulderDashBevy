@@ -24,7 +24,7 @@ pub struct InputDelayTimer(pub Timer);
 impl Plugin for PlayerInputPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(setup)
-                .add_system_to_stage(CoreStage::First, keyboard_input);
+                .add_system(keyboard_input.in_base_set(CoreSet::First));
     }
 }
 

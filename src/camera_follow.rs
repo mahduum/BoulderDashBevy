@@ -13,7 +13,7 @@ pub struct CameraFollowPlugin;
 
 impl Plugin for CameraFollowPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_to_stage(CoreStage::Last, camera_follow);
+        app.add_system(camera_follow.in_base_set(CoreSet::Last));
     }
 }
 

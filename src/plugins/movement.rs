@@ -1,9 +1,8 @@
 use bevy::app::{App, Plugin};
-use bevy::prelude::{Entity, Query};// ParallelSystemDescriptorCoercion};
+use bevy::prelude::{Entity, Query, CoreSet};// ParallelSystemDescriptorCoercion};
 use bevy::time::{Timer, TimerMode};
 use bevy_ecs_tilemap::tiles::{TilePos, TileStorage};
-use bevy::prelude::IntoSystemDescriptor;
-use crate::{relocate_components, Commands, CoreStage, MyLabel, MovementStage, Without};
+use crate::{relocate_components, Commands, MyLabel, MovementStage, Without, IntoSystemConfig};
 use crate::prelude::*;
 use crate::tile_map::*;
 
@@ -11,7 +10,7 @@ pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin{
 	fn build(&self, app: &mut App) {
-		app.add_system_to_stage(CoreStage::Update, movement.label("movement"));
+		app.add_system(movement.in_base_set(CoreSet::Update));//todo was in custom movementstage maybe reimplement new way? use configure_sets for this from guide
 	}
 }
 

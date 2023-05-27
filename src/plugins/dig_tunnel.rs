@@ -1,6 +1,6 @@
 use bevy::app::Plugin;
 use bevy::prelude::*;
-use crate::{App, CoreStage, MovementStage};//ParallelSystemDescriptorCoercion};
+use crate::{App, MovementStage};//ParallelSystemDescriptorCoercion};
 use crate::tile_map::TileType;
 use crate::prelude::*;
 
@@ -8,7 +8,7 @@ pub struct DigTunnelPlugin;
 
 impl Plugin for DigTunnelPlugin{
 	fn build(&self, app: &mut App) {
-		app.add_system_to_stage(CoreStage::Update, dig);
+		app.add_system( dig.in_base_set(CoreSet::Update));
 	}
 }
 //send want_to_dig message:
@@ -25,7 +25,7 @@ fn dig(mut delta_query: Query<(Entity, &MakeWay, &mut TileType)>,
 }
 
 //Todo: this should be updated before player enters the undug tile
-fn dig_after_player_relocated(removed: RemovedComponents<Player>, mut query: Query<(&mut TileType)>){
+fn dig_after_player_relocated(mut removed: RemovedComponents<Player>, mut query: Query<(&mut TileType)>){
 	removed.iter().for_each(
 		|e|
 		{

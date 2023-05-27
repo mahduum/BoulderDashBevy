@@ -4,10 +4,13 @@ use crate::prelude::*;
 use bevy::sprite::{Material2d, Material2dPlugin, MaterialMesh2dBundle};
 use bevy::render::render_resource::*;
 use bevy::render::render_resource::AsBindGroup;
-use bevy::reflect::TypeUuid;
+use bevy::reflect::{TypeUuid, Uuid};
 use bevy::render::camera::{RenderTarget, ScalingMode};
-use bevy::render::texture::BevyDefault;
+use bevy::render::render_asset::RenderAssets;
+use bevy::render::renderer::RenderDevice;
+use bevy::render::texture::{BevyDefault, FallbackImage};
 use bevy::render::view::RenderLayers;
+use bevy::window::PrimaryWindow;
 
 pub struct PostProcessPlugin;
 
@@ -19,14 +22,14 @@ impl Plugin for PostProcessPlugin {
 
 fn post_process_setup(
 	mut commands: Commands,
-	mut windows: ResMut<Windows>,
+	mut primary_query: Query<&Window, With<PrimaryWindow>>,
 	mut meshes: ResMut<Assets<Mesh>>,
 	mut post_processing_materials: ResMut<Assets<EightBitPostProcessingMaterial>>,
 	mut materials: ResMut<Assets<StandardMaterial>>,
 	mut images: ResMut<Assets<Image>>,
 	mut query: Query<&TilemapTexture>,
 ) {
-	let window = windows.primary_mut();
+	let window = primary_query.get_single().unwrap();
 	let size = Extent3d {
 		width: window.physical_width(),
 		height: window.physical_height(),
@@ -46,6 +49,7 @@ fn post_process_setup(
 			usage: TextureUsages::TEXTURE_BINDING
 					| TextureUsages::COPY_DST
 					| TextureUsages::RENDER_ATTACHMENT,
+			view_formats: &[]
 		},
 		..default()
 	};
@@ -106,7 +110,7 @@ fn post_process_setup(
 		Camera2dBundle {
 			camera: Camera {
 				// renders after the first main camera which has default value: 0.
-				priority: 1,
+				//priority: 1,
 				..default()
 			},
 			projection: OrthographicProjection{
@@ -130,6 +134,8 @@ pub(crate) struct EightBitPostProcessingMaterial {
 	#[sampler(1)]
 	source_image: Handle<Image>,
 }
+
+//impl TypeUuid for EightBitPostProcessingMaterial { const TYPE_UUID: Uuid = Default::default(); }
 
 impl Material2d for EightBitPostProcessingMaterial {
 	fn fragment_shader() -> ShaderRef {

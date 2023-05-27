@@ -1,4 +1,3 @@
-use bevy::ecs::schedule::StateData;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::TilePos;
 use std::{marker::PhantomData, time::Duration};

@@ -31,6 +31,7 @@ use bevy::{prelude::*, window::PresentMode};
 use bevy::render::camera::ScalingMode;
 use bevy::sprite::Material2dPlugin;
 use bevy::utils::define_label;
+use bevy::window::{ExitCondition, WindowResolution};
 
 
 //use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
@@ -59,7 +60,7 @@ use crate::plugins::animation_state::AnimationStatePlugin;
 use crate::TimerMode::Repeating;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(SystemLabel)]
+#[derive(SystemSet)]
 enum MyLabel {
     /// everything that handles input
     Input,
@@ -72,11 +73,11 @@ enum MyLabel {
 }
 
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(StageLabel)]
-enum MovementStage{
-    Moving,
-    Digging
+#[derive(Debug, Clone, PartialEq, Eq, Hash, SystemSet)]
+#[system_set(base)]
+pub enum MovementStage{//todo not yet implemented???
+    Moving,//before
+    Digging//after
 }
 
 //todo: is there a function in plugin that remeber what is on what tile?
@@ -85,16 +86,13 @@ fn main() {
         .add_plugins(DefaultPlugins
                 .set(ImagePlugin::default_nearest())
                 .set(WindowPlugin {
-                    window: WindowDescriptor {
-                        width: HEIGHT * RESOLUTION,
-                        height: HEIGHT,
-                        monitor: MonitorSelection::Index(1),
-                        position: WindowPosition::Centered,
+                    primary_window: Option::from(Window {
+                        resolution: WindowResolution::new(HEIGHT * RESOLUTION, HEIGHT),
+                        position: WindowPosition::Centered(MonitorSelection::Index(0)),
                         ..default()
-                    },
-                    add_primary_window: true,
-                    exit_on_all_closed: true,
-                    close_when_requested: true
+                    }),
+                    close_when_requested: true,
+                    exit_condition: ExitCondition::OnPrimaryClosed
                 }))
                     //..default()))
         // .insert_resource(WorldInspectorParams {//todo update for bevy 0_9
@@ -119,22 +117,33 @@ fn main() {
         .add_plugin(AnimationStatePlugin)
         .init_resource::<SpriteAnimationSequences>()
         .insert_resource(InputDelayTimer(Timer::from_seconds(0.2, Repeating)))
-        .add_stage_before(CoreStage::Update, MovementStage::Moving, SystemStage::parallel())
-        .add_stage_after(CoreStage::Update, MovementStage::Digging, SystemStage::parallel())
+            // .configure_set
+            // (
+            //     MovementStage::Digging
+            //             .after(CoreSet::UpdateFlush)
+            //             .before(CoreSet::PostUpdate)
+            // )
+            // .configure_set
+            // (
+            //     MovementStage::Moving
+            //             .after(CoreSet::PreUpdateFlush)
+            //             .before(CoreSet::Update)
+            // )
+            .configure_sets
+            ((
+                    CoreSet::PreUpdateFlush,
+                    MovementStage::Moving,
+                    CoreSet::PreUpdateFlush,
+                    CoreSet::UpdateFlush,
+                    MovementStage::Digging,
+                    CoreSet::PostUpdate
+            ))//.chain().add_system(some_system.in_base_set(MovementStage::Digging));
+        //.add_stage_before(CoreSet::Update, MovementStage::Moving, SystemStage::parallel())//todo require configure_set
+        //.add_stage_after(CoreSet::Update, MovementStage::Digging, SystemStage::parallel())//todo require configure_set
         .run();
 }
 
 fn spawn_camera(mut commands: Commands) {
-
-    let projection = OrthographicProjection {
-        left: -1.0 * RESOLUTION,
-        right: 1.0 * RESOLUTION,
-        bottom: -1.0,
-        top: 1.0,
-        far: 1000.0,
-        scaling_mode: ScalingMode::None,
-        ..Default::default()
-    };
 
     commands.spawn(Camera2dBundle{
         projection: OrthographicProjection{

@@ -1,4 +1,4 @@
-#import bevy_pbr::mesh_view_bindings
+#import bevy_sprite::mesh2d_view_bindings
 #import bevy_pbr::utils
 
 @group(1) @binding(0)
@@ -37,11 +37,11 @@ fn fragment(
         1.0
         );
 
-    let distance = fract(position.y * 0.01 * lines);
-    let distance = fract(uv.y * lines);
+    //let distance = fract(position.y * 0.01 * lines);
+    let distance = fract(uv.y * lines);//todo redefinition??? wtf
     let dist_change = dpdy(distance);
 
-    let intensity = smoothstep(dist_change, -dist_change, distance);//aa_step(0.5, distance);//smoothstep(0.5, 1.0, fract(position.y * 0.0001 * lines));
+    //let intensity = smoothstep(dist_change, -dist_change, distance);//aa_step(0.5, distance);//smoothstep(0.5, 1.0, fract(position.y * 0.0001 * lines));todo redef wtf???
 
     // add 0.5 before fract so if dist=4 and line_distance=1 we would have 0, but in that way we will have 0.5 - we shift to the middle
     // next if we had 4.4 + 0.5 => 0.9 - 0.5 = 0.4, and if 4.3 + 0.5 => 0.8 - 0.5 = 0.3 - we are climbing but past the middle point 4.6, 4.7 => 0.4, 0.3 we are descending
@@ -52,7 +52,7 @@ fn fragment(
 
     //saturate and raise to power to decrease more faint values:
     let power = 1.0;
-    let intensity = saturate(pow(majorLines, power));//todo take some power
+    let intensity = saturate(pow(majorLines, power));//todo take some power, redefinition??? wtf
     let line_color = vec4<f32>(0.8, 0.3, 0.6, 1.0) * (intensity);
     var new_output_color = vec4<f32>(
         textureSample(texture, our_sampler, uv).x * intensity * line_color.x,//todo add color

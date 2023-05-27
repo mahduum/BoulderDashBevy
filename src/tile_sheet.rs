@@ -8,7 +8,7 @@ pub struct TileSheet(Handle<TextureAtlas>);
 
 impl Plugin for TileSheetPlugin{
     fn build(&self, app: &mut App) {
-        app.add_startup_system_to_stage(StartupStage::PreStartup, load_tiles);
+        app.add_startup_system(load_tiles.in_base_set(StartupSet::PreStartup));
     }
 }
 
@@ -24,7 +24,7 @@ pub fn spawn_sprite_from_tile_sheet(
     sprite.color = color;
     sprite.custom_size = Some(Vec2::splat(16.0 * 0.01));
 
-    commands.spawn_bundle(SpriteSheetBundle
+    commands.spawn(SpriteSheetBundle
     {
         sprite,
         texture_atlas: sheet.0.clone(),//can be texture atlas handle passed directly?
